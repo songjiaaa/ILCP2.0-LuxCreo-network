@@ -150,6 +150,11 @@ void rtc_time_calibration(void)
 		}
 		else if(rtc_cal_step == 4)                             //执行一次服务器连接
 		{
+			memset(cfg_dft.ip_buff,0x00,sizeof(cfg_dft.ip_buff));
+			if( 0 == esp8266_DNS(cfg_dft.lux_domain_name,cfg_dft.ip_buff))     //执行一次域名解析
+			{
+				
+			}
 			if( 0 == esp8266_connect_udp_server(cfg_dft.lux_domain_name,SERVER_UDP_PORT_NUMBER) )     
 			{
 				if( 0 == esp8266_enter_unvarnished() )     //进入透传模式
@@ -179,7 +184,8 @@ int getweekday(const char * m)
 {    
     int y=0;
     int x=0;
-    for(y=0;y<7;y++){
+    for(y=0;y<7;y++)
+	{
         if(0==strncmp(g_weekdays[y],m,strlen(m)) ){
 //            printf("date m=%d\n",++y);
             x=y;

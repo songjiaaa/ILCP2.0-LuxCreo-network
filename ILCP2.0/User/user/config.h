@@ -28,6 +28,7 @@ typedef struct
 	u8 	version[30];                 //程序版本
 	char* ali_domain_name;           //TCP连接服务器下载用
 	char* lux_domain_name;           //公司服务器，上报数据使用
+	char ip_buff[16];
 }s_cfg;
 #pragma pack()
 

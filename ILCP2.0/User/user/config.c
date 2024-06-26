@@ -17,7 +17,8 @@ s_cfg cfg_dft=
 	.u_disk_state = 0,      //u盘状态
 	.heat_temp = -300,      //加热温度 不加热
 	.ali_domain_name = NULL,
-	.lux_domain_name = NULL
+	.lux_domain_name = NULL,
+	.ip_buff = {0},
 };
 
 //总时间保存

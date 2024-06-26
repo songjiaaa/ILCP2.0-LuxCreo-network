@@ -298,6 +298,7 @@ u8 usr_query_connect(void)
 }
 
 
+
 //char testaaa[] = "Date: Tue, 21 May 2024 09:43:40 GMT";
 //tm usr_tm = {0}; 
 //请求服务器信息，从服务器返回信息中得到时间来校准RTC时间
