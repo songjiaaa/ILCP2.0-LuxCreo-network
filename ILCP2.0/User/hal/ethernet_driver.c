@@ -143,6 +143,11 @@ void ethernet_module_run(void)
 		{
 			vTaskDelay(5000);
 			cfg_dft.network_selet = 1; 
+			if(cfg_dft.network_selet == 1)
+				switch_icon(0,5,2);		       //  0未连接  1wifi连接  2网线连接	
+			else
+				switch_icon(0,5,wifi_flow.connect_state);  //wifi_flow.connect_state   0：WiFi未联网 1：已联网	
+			
 			enthernet_flow.execution_step = 4;
 		}
 	}

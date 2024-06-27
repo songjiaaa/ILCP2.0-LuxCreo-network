@@ -153,7 +153,7 @@ void rtc_time_calibration(void)
 			memset(cfg_dft.ip_buff,0x00,sizeof(cfg_dft.ip_buff));
 			if( 0 == esp8266_DNS(cfg_dft.lux_domain_name,cfg_dft.ip_buff))     //执行一次域名解析
 			{
-				
+				cfg_dft.lux_domain_name = cfg_dft.ip_buff;     //域名解析成IP
 			}
 			if( 0 == esp8266_connect_udp_server(cfg_dft.lux_domain_name,SERVER_UDP_PORT_NUMBER) )     
 			{

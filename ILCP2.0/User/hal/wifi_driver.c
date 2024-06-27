@@ -254,7 +254,7 @@ uint8_t esp8266_DNS(char *domain,char *ip_buf)
 		ptr = strstr((const char*)wifi_pack_buf,"+CIPDOMAIN:");
 		if(ptr != NULL) 
 		{
-			sscanf(ptr,"+CIPDOMAIN:\"%[^\"]\"",ip_buf);
+			sscanf(ptr,"+CIPDOMAIN:%s\r\n",ip_buf);
 			return 0;
 		}
 	}
@@ -456,6 +456,21 @@ u8 esp8266_exit_unvarnished(void)
 uint8_t esp8266_disconnect_server(void)
 {
     return esp8266_send_at_cmd("AT+CIPCLOSE\r\n",strlen("AT+CIPCLOSE\r\n"),"OK", 1000);
+}
+
+//查询IPv6是否使能
+u8 query_IPV6_EN(void)
+{
+	return esp8266_send_at_cmd("AT+CIPV6?\r\n",strlen("AT+CIPV6?\r\n"),"OK", 1000);
+}
+
+//启用/禁用IPv6网络
+u8 set_IPV6_EN(u8 en)
+{
+	if(en == 0)
+		return esp8266_send_at_cmd("AT+CIPV6=0\r\n",strlen("AT+CIPV6=0\r\n"),"OK", 1000);
+	else
+		return esp8266_send_at_cmd("AT+CIPV6=1\r\n",strlen("AT+CIPV6=1\r\n"),"OK", 1000);
 }
 
 

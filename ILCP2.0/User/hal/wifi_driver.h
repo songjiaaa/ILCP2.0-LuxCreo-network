@@ -45,6 +45,8 @@ uint8_t esp8266_connect_udp_server(char *server_ip, char *server_port);
 uint8_t esp8266_enter_unvarnished(void);
 u8 esp8266_exit_unvarnished(void);
 uint8_t esp8266_disconnect_server(void);
+u8 query_IPV6_EN(void);
+u8 set_IPV6_EN(u8 en);
 u8 file_header_request(char* domain, char* path,u32* total_size,u32 timeout);
 u8 server_download_request(char* domain, char* path,int* start,int* end,u8* buf,u32* total_size,u32 timeout);
 

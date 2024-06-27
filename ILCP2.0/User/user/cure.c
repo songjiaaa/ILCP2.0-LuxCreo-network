@@ -459,8 +459,9 @@ void cure_show_text(void)
 	else
 	{
 		n = sprintf((char*)show,"%d",exe_parameter.heat[cure.step]); 
-		show[n] = 0xA1;
-		show[n+1] = 0xE6;	
+		show[n] = 0xe2;
+		show[n+1] = 0x84;	
+		show[n+2] = 0x83;
 		SetTextValue(12,8,show);
 	}
 }

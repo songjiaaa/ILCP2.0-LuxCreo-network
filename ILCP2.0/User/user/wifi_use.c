@@ -19,6 +19,10 @@ u8 wifi_init_process(void)
 	ret += esp8266_ate_config(0);   //关闭回显功能
 	ret += esp8266_set_mode(1);     //station模式
 	ret += esp8266_set_auto_connected(0);  //设置上电不自动连接	
+//	if(0 != query_IPV6_EN())        //查询IPv6是否使能
+//	{
+//		ret += set_IPV6_EN(1);       //启用IPv6
+//	}
 	return ret;
 }
 

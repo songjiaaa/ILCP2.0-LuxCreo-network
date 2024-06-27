@@ -8,7 +8,7 @@
 #include "app.h"
 
 #define DEVICE_NAME "ILCP 2.0"
-#define VERSION "V2.0" 
+#define VERSION "V2.0.1" 
 
 
 u8 get_month(void);

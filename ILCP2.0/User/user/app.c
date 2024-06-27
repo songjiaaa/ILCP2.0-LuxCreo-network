@@ -60,12 +60,18 @@ void init_task(void * pvParameters)
 		else if(cfg_dft.init_step == 2)          //以太网模块初始化 
 		{
 			int i = 0;
-			pop_tips(28,(u8*)INITIALIZE,(u8*)ETHERNET_INIT);   //以太网模块初始化弹框
-
+			
 			while(1)
 			{
+				if(ui_id.cur_picture == 20)      //若当前界面处于设置界面
+				{
+					pop_tips(28,(u8*)INITIALIZE,(u8*)ETHERNET_INIT);   //以太网模块初始化弹框
+				}
 				if(0 == usr_k5_init())           //初始化成功
 				{
+					if(ui_id.cur_picture == 28) 
+						set_screen(20);
+					
 					break;
 				}
 				else
@@ -83,51 +89,53 @@ void init_task(void * pvParameters)
 						break;
 					}
 				}
+				vTaskDelay(10);
 			}
 			enthernet_flow.execution_step = 1;  //重新连接上传的服务器
 			cfg_dft.network_selet = 0;          //以太网连接状态重置
-			set_screen(0);
 			cfg_dft.init_step = 3;          //执行WiFi模块初始化
 			memset(&wifi_flow,0x00,sizeof(wifi_flow));
 		}
 		else if(cfg_dft.init_step == 3)          //WiFi模块初始化 
 		{
 			int i = 0;
-			pop_tips(28,(u8*)INITIALIZE,(u8*)WIFI_INIT);   //WiFi 模块初始化弹框
 			while(1)
 			{
+				if(ui_id.cur_picture == 20)      //若当前界面处于设置界面
+				{
+					pop_tips(28,(u8*)INITIALIZE,(u8*)WIFI_INIT);   //WiFi 模块初始化弹框
+				}
 				if( 0 == wifi_init_process() )      //wifi初始化
 				{
 					wifi_flow.execution_step = 1;
+					
+					if(ui_id.cur_picture == 28) 
+						set_screen(20);
 					break;
 				}
 				else	
 				{
-					if(i++ < 3)
+					if(i++ < 6)
 					{
 						WIFI_PWR_EN = 0;            //WiFi模块掉电
-						vTaskDelay(3000);           //延迟3秒
+						vTaskDelay(4000);           //延迟3秒
 						WIFI_PWR_EN = 1;
 					}
 					else
 					{
-						set_screen(0);
 						pop_tips(30,(u8*)WARNING,(u8*)WIFI_INIT_ERROR);    //初始化失败提示    
 						break;
 					}
-				}					
+				}
+				vTaskDelay(10);				
 			}
-			set_screen(0);
 			cfg_dft.init_step = 4;
 		}
 		else if(cfg_dft.init_step == 4)        //以太网和WiFi模块运行
 		{
-			ethernet_module_run();
 			wifi_module_run();
-			if(cfg_dft.network_selet == 1)
-				switch_icon(0,5,2);		       //  0未连接  1wifi连接  2网线连接	
-			else
-				switch_icon(0,5,wifi_flow.connect_state);  //wifi_flow.connect_state   0：WiFi未联网 1：已联网	
+			ethernet_module_run();
+
 		}
 		else if(cfg_dft.init_step == 5)        //更新升级
 		{

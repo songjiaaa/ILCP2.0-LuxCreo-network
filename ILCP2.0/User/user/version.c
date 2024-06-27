@@ -66,8 +66,8 @@ void version_release(void)
 	if(DataStr[4] == ' ') DataStr[4] = '0';
 	memcpy(&firmwave_ver[sizeof(VERSION)+4],(char*)&DataStr[4],2);
 	
-	firmwave_ver[sizeof(VERSION)+6] = __TIME__[0];
-	firmwave_ver[sizeof(VERSION)+7] = __TIME__[1];
+//	firmwave_ver[sizeof(VERSION)+6] = __TIME__[0];
+//	firmwave_ver[sizeof(VERSION)+7] = __TIME__[1];
 	
 	memcpy(cfg_dft.version,firmwave_ver,sizeof(cfg_dft.version));
 	SetTextValue(SETTTING_PAGE_ID1,13,firmwave_ver);          
