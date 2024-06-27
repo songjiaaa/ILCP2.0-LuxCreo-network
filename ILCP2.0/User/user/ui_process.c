@@ -121,11 +121,11 @@ u8 touch_cmd_pro(u8 *b ,int len)
 				}
 				else if( CHANGE_END16(b_ctrl.touch_id) >= 20 && CHANGE_END16(b_ctrl.touch_id) <= 23 )  
 				{
-					user_custom[custom_page.select_num].up_uv[b_ctrl.touch_id - 20] = 0;
-					user_custom[custom_page.select_num].down_uv[b_ctrl.touch_id - 20] = 0;
-					user_custom[custom_page.select_num].heat[b_ctrl.touch_id - 20] = 0;
-					user_custom[custom_page.select_num].time[b_ctrl.touch_id - 20] = 0;
-  	
+					user_custom[custom_page.select_num - 1].up_uv[CHANGE_END16(b_ctrl.touch_id) - 20] = 0;
+					user_custom[custom_page.select_num - 1].down_uv[CHANGE_END16(b_ctrl.touch_id) - 20] = 0;
+					user_custom[custom_page.select_num - 1].heat[CHANGE_END16(b_ctrl.touch_id) - 20] = 0;
+					user_custom[custom_page.select_num - 1].time[CHANGE_END16(b_ctrl.touch_id) - 20] = 0;
+					//清空显示
 					clear_text_value(7,CHANGE_END16(b_ctrl.touch_id) - 16);	
 					clear_text_value(7,CHANGE_END16(b_ctrl.touch_id) - 12);
 					clear_text_value(7,CHANGE_END16(b_ctrl.touch_id) - 8);

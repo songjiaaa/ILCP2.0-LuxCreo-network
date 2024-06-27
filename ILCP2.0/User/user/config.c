@@ -43,7 +43,7 @@ file_save_config save_config =
 };
 
 
-int cfg_save(void) //将当前配置保存在Flash
+int cfg_save(void) //将当前配置保存
 {
 	if(FR_OK != write_user_parameter(CONFIG_FILE,(const void*)&save_config,sizeof(save_config)))
 	{
