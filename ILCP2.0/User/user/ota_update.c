@@ -79,7 +79,7 @@ void ota_run_process(void)
 //							latest_v = atoi(v_r.v_buf);                                 //服务器存储的版本转换为整数
 							
 							set_screen(35);                //展示版本信息界面
-							sprintf(txt_buf,"%s%s","Latest Version:V2.0.",v_r.v_buf);
+							sprintf(txt_buf,"%s%s","Latest Version:V2.0.1",v_r.v_buf);
 							SetTextValue(35,6,(unsigned char*)txt_buf);
 							memset(txt_buf,0x00,sizeof(txt_buf));
 							sprintf(txt_buf,"%s%s","Current Version:",cfg_dft.version);
@@ -122,10 +122,15 @@ void ota_run_process(void)
 		else if(wifi_flow.ota_run_step == 99)
 		{
 			if(0 == update_cure_parameter_file())
+			{
 				wifi_flow.ota_run_step = 0xFF;
-			else
+				wifi_flow.down_timeout = 0;
+				pop_tips(27,(u8*)HMI_SUCCEEDED,(u8*)FILE_IM_SUCCEEDED);
+			}
+			if(wifi_flow.down_timeout++ > 5000)
 			{
 				wifi_flow.ota_run_step = 66;
+				set_screen(20);
 				pop_tips(30,(u8*)HMI_FAILED,(u8*)"Cure parameter update failed!");   //固化参数更新失败
 			}
 		}

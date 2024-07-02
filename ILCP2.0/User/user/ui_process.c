@@ -363,6 +363,8 @@ u8 touch_cmd_pro(u8 *b ,int len)
 					if( cfg_dft.network_selet == 1 || wifi_flow.connect_state == 1 )  //若是以太网连接则走以太网路线
 					{
 						cfg_dft.init_step = 5;  //执行OTA更新
+						wifi_flow.ota_run_step = 0;
+						wifi_flow.down_timeout = 0;
 						set_screen(34);         //跳转到检查更新等待界面
 					}
 					else

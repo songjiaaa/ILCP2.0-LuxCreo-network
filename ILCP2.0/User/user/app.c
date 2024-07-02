@@ -133,9 +133,16 @@ void init_task(void * pvParameters)
 		}
 		else if(cfg_dft.init_step == 4)        //以太网和WiFi模块运行
 		{
+			static u32 tick = 0;
 			wifi_module_run();
 			ethernet_module_run();
-
+			if(tick++ % 100 == 0)
+			{
+				if(cfg_dft.network_selet == 1)
+					switch_icon(0,5,2);		       //  0未连接  1wifi连接  2网线连接	
+				else
+					switch_icon(0,5,wifi_flow.connect_state);  //wifi_flow.connect_state   0：WiFi未联网 1：已联网	
+			}
 		}
 		else if(cfg_dft.init_step == 5)        //更新升级
 		{

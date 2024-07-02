@@ -502,10 +502,12 @@ int temperature_control(s16 exp_temp,u8 sta)
 				}					
 			}
 			PTC_FAN2_EN = 0;               //加热时散热风扇保持关闭
+			if(sensor_data.ptc_t > 150) HEAT_POWER_PER = 0;    //若PTC加热片温度偏高 则关闭加热片
+			else HEAT_POWER_PER = heat_per;
 		}
 		else
 		{
-			if(sensor_data.inside_t >= heat_temp+1)
+			if(sensor_data.inside_t > heat_temp+2)
 				PTC_FAN2_EN = 1;           //高于期望温度1摄氏度 散热打开 
 			if(sensor_data.inside_t >= heat_temp+10)  //若高于10度 有可能在持续升温，则关闭加热片打开散热风扇
 			{
@@ -513,9 +515,8 @@ int temperature_control(s16 exp_temp,u8 sta)
 				heat_per = 0;
 				HEAT_POWER_PER = 0;
 			}
+			HEAT_POWER_PER = 0;
 		}
-		if(sensor_data.ptc_t > 150) HEAT_POWER_PER = 0;    //若PTC加热片温度偏高 则关闭加热片
-		else HEAT_POWER_PER = heat_per;
 	}
 	else
 	{
