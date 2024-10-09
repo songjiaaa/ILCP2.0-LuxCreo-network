@@ -11,7 +11,7 @@
 #include "queue.h" 
 #include "semphr.h"
 #include "FreeRTOS.h"
-//#include "f4_uart.h"
+#include "f4_uart.h"
 
 //typedef struct 
 //{

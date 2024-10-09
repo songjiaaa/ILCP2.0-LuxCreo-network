@@ -1,4 +1,8 @@
 #include "app.h"
+//#include "uart_device.h"
+//#include "modbus.h"
+//#include "errno.h"
+
 
 RTC_TimeTypeDef RTC_TimeStruct;
 RTC_DateTypeDef RTC_DateStruct;
@@ -99,59 +103,15 @@ void init_task(void * pvParameters)
 
 
 
-//以太网串口接收
-//void enthernet_data_pro_task(void *pvParameters)
-//{
-//	u8 tt;
-//	u32 NotifyValue = 0;
-//    while(1)
-//    {
-//		NotifyValue = ulTaskNotifyTake(pdTRUE,portMAX_DELAY); 
-//		if(NotifyValue == 1)
-//		{
-//			while(get_que_data(&tt,&uart2.que_rx)==0)
-//			{
-////				uart_send(&tt,1,&uart1);
-////				ethernet_data_pack.rec_buff[ethernet_data_pack.rec_p++] = tt;
-////				ethernet_data_pack.rec_p %= ethernet_data_pack.buf_len;
-//			}
-//		}
-//		else
-//		{
-//			vTaskDelay(10);
-//		}
-//	}
-//}
 
 
-//void wifi_data_pro_task(void *pvParameters)
-//{
-//	u8 tt;
-//	u32 NotifyValue = 0;
-//    while(1)
-//    {
-//		NotifyValue = ulTaskNotifyTake(pdTRUE,portMAX_DELAY); 
-//		if(NotifyValue == 1)
-//		{
-//			while(get_que_data(&tt,&uart3.que_rx)==0)
-//			{
-////				wifi_data_pack.rec_buff[wifi_data_pack.rec_p++] = tt;
-////				wifi_data_pack.rec_p %= wifi_data_pack.buf_len;
-//			}
-//		}
-//		else
-//		{
-//			vTaskDelay(10);
-//		}
-//	}
-//}
 
-//void lcd_data_pro_task(void * pvParameters)
-//{
-//	u8 tt;
-//	u32 NotifyValue = 0;
-//    while(1)
-//    {
+
+void modbus_pro_task(void * pvParameters)
+{
+//	modbus_mapping_t *mb_mapping;
+    while(1)
+    {
 //		NotifyValue = ulTaskNotifyTake(pdTRUE,portMAX_DELAY); 
 //		if(NotifyValue == 1)
 //		{
@@ -164,8 +124,8 @@ void init_task(void * pvParameters)
 //		{
 //			vTaskDelay(10);
 //		}
-//	}
-//}
+	}
+}
 
 
 void usb_disk_task( void * pvParameters )

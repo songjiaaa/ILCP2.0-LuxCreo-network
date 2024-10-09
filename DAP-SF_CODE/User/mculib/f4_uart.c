@@ -216,22 +216,22 @@ void USART3_IRQHandler(void)
 	taskEXIT_CRITICAL_FROM_ISR( ulReturn ); 	/* 退出临界段 */
 }
 
-//extern struct UART_Device g_uart4_dev;
-void UART4_IRQHandler(void)
-{
-//	uint32_t ulReturn;
-//	ulReturn = taskENTER_CRITICAL_FROM_ISR();	/* 进入临界段，临界段可以嵌套 */
-//	struct UART_Data *uart_data = g_uart4_dev.priv_data; 	
-	uart_irq(&uart4);
-	if(uart4.uart->CR1 & (1<<4) && uart4.uart->SR & 0x10)  //空闲中断
-	{
-		uart4.uart->SR;
-		uart4.uart->DR;	
-//		xSemaphoreGiveFromISR(uart_data->xTxSem, NULL);     //释放信号量
-	}
-	
-//	taskEXIT_CRITICAL_FROM_ISR( ulReturn ); 	/* 退出临界段 */
-}
+
+//void UART4_IRQHandler(void)
+//{
+////	uint32_t ulReturn;
+////	ulReturn = taskENTER_CRITICAL_FROM_ISR();	/* 进入临界段，临界段可以嵌套 */
+////	struct UART_Data *uart_data = g_uart4_dev.priv_data; 	
+//	uart_irq(&uart4);
+//	if(uart4.uart->CR1 & (1<<4) && uart4.uart->SR & 0x10)  //空闲中断
+//	{
+//		uart4.uart->SR;
+//		uart4.uart->DR;	
+////		xSemaphoreGiveFromISR(uart_data->xTxSem, NULL);     //释放信号量
+//	}
+//	
+////	taskEXIT_CRITICAL_FROM_ISR( ulReturn ); 	/* 退出临界段 */
+//}
 
 void UART5_IRQHandler(void)
 {

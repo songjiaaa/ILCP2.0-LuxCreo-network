@@ -12,8 +12,8 @@
 
 在使用时，需要将整块数据入队出队时使用块操作函数，而对于单字节数据使用单字节函数
 */
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef MY_QUEUE_H_
+#define MY_QUEUE_H_
 
 #include "main.h"
 
