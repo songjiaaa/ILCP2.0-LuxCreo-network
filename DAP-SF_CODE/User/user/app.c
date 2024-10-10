@@ -1,7 +1,7 @@
 #include "app.h"
-//#include "uart_device.h"
-//#include "modbus.h"
-//#include "errno.h"
+#include "uart_device.h"
+#include "modbus.h"
+#include "errno.h"
 
 
 RTC_TimeTypeDef RTC_TimeStruct;
@@ -19,16 +19,18 @@ TaskHandle_t software_timer_handler;
 TaskHandle_t get_sensor_data_handler;
 TaskHandle_t run_task_handler;
 TaskHandle_t init_task_handler;
-
+TaskHandle_t modbus_pro_task_handler;
 
 //Æô¶¯ÈÎÎñ
 void start_task(void *pvParameters)
 {
-
 //	xTaskCreate( run_task, "run_task", 512, NULL, 6, &run_task_handler );
 //	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
+	
+	xTaskCreate( init_task, "init_task",512, NULL, 10, &init_task_handler );	
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
-	xTaskCreate( init_task, "init_task",512, NULL, 2, &init_task_handler );	
+	xTaskCreate( modbus_pro_task, "modbus_pro_task", 256, NULL, 3, &modbus_pro_task_handler );
+
 	
 	vTaskDelete(start_task_handler);
 }
@@ -72,8 +74,6 @@ void init_task(void * pvParameters)
 //				}
 			}
 		}
-
-		
 		vTaskDelay(10);
 	}
 }
@@ -109,22 +109,63 @@ void init_task(void * pvParameters)
 
 void modbus_pro_task(void * pvParameters)
 {
-//	modbus_mapping_t *mb_mapping;
+	int rc;
+	u8 *query;
+	modbus_t *ctx = NULL;
+	modbus_mapping_t *mb_mapping = NULL;
+	ctx = modbus_new_st_rtu("uart4", 115200, 'N', 8, 1);
+	modbus_set_slave(ctx, 2);
+	
+	query = pvPortMalloc(MODBUS_RTU_MAX_ADU_LENGTH);
+	
+	mb_mapping = modbus_mapping_new_start_address(0,
+												  10,
+												  0,
+												  10,
+												  0,
+												  10,
+												  0,
+												  10);
+	
+	rc = modbus_connect(ctx);
+	if (rc == -1) 
+	{
+		//fprintf(stderr, "Unable to connect %s\n", modbus_strerror(errno));
+		modbus_free(ctx);
+		vTaskDelete(NULL);
+	}
+	
+	
     while(1)
     {
-//		NotifyValue = ulTaskNotifyTake(pdTRUE,portMAX_DELAY); 
-//		if(NotifyValue == 1)
-//		{
-//			while(get_que_data(&tt,&uart6.que_rx)==0)
-//			{
-////				rec_sync(tt,&button_ctrl_pack);				
-//			}
-//		}
-//		else
-//		{
-//			vTaskDelay(10);
-//		}
+		do
+		{
+			rc = modbus_receive(ctx, query);
+			/* Filtered queries return 0 */
+		} while (rc == 0);
+		
+		if (rc == -1 && errno != EMBBADCRC) {
+			/* Quit */
+			continue;
+		}
+		mb_mapping->tab_bits++;
+		mb_mapping->tab_input_bits++;
+		mb_mapping->tab_input_registers[0] ++;
+		mb_mapping->tab_input_registers[1] ++;
+		mb_mapping->tab_registers[0]++;
+		mb_mapping->tab_registers[1] = 6754;
+		rc = modbus_reply(ctx, query, rc, mb_mapping);
+		if (rc == -1) {
+			break;
+		}
 	}
+	modbus_mapping_free(mb_mapping);
+	vPortFree(query);
+	/* For RTU */
+	modbus_close(ctx);
+	modbus_free(ctx);
+
+	vTaskDelete(NULL);
 }
 
 
@@ -167,7 +208,7 @@ void software_timer_task( void * pvParameters )
 	xTimerStart(timer_10ms, 0);
     while(1)
     {
-		uart_send((u8*)"test_ch340aaaaa\r\n",sizeof("test_ch340aaaaa\r\n"),&uart4);
+//		uart_send((u8*)"test_ch340aaaaa\r\n",sizeof("test_ch340aaaaa\r\n"),&uart4);
 		
 		LED_IND ^= 1;	
         vTaskDelay(500);

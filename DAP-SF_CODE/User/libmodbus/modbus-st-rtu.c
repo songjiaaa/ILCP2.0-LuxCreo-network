@@ -154,8 +154,7 @@ static ssize_t _modbus_rtu_send(modbus_t *ctx, const uint8_t *req, int req_lengt
     else
     {
 		errno = EIO;
-		return errno;
-//		return -1;
+		return -1;
     }
 }
 
@@ -193,8 +192,7 @@ static ssize_t _modbus_rtu_recv(modbus_t *ctx, uint8_t *rsp, int rsp_length, int
     else
     {
 		errno = EIO;
-		return errno;
-//		return -1;
+		return -1;
     }
 }
 
@@ -361,8 +359,7 @@ const modbus_backend_t _modbus_rtu_backend_uart = {
 
 // clang-format on
 
-modbus_t *
-modbus_new_st_rtu(const char *device, int baud, char parity, int data_bit, int stop_bit)
+modbus_t *modbus_new_st_rtu(const char *device, int baud, char parity, int data_bit, int stop_bit)
 {
     modbus_t *ctx;
     modbus_rtu_t *ctx_rtu;

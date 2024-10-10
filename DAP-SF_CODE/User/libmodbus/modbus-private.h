@@ -63,7 +63,7 @@ typedef struct _sft {
     int t_id;
 } sft_t;
 
-#define ssize_t unsigned int
+#define ssize_t  int
 #define fd_set  unsigned int
 
 struct timeval {

@@ -16,41 +16,6 @@ static struct UART_Data g_uart4_data = {
 };
 
 
-//void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//	if (huart == &huart1)
-//	{
-//        struct UART_Data * uart_data = g_uart1_dev.priv_data;        
-//		xSemaphoreGiveFromISR(uart_data->xTxSem, NULL);
-//        HAL_GPIO_WritePin(uart_data->GPIOx_485, uart_data->GPIO_Pin_485, GPIO_PIN_RESET);
-//	}
-//}
-
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//	if (huart == &huart1)
-//	{
-//        struct UART_Data * uart_data = g_uart1_dev.priv_data;        
-//		xQueueSendFromISR(uart_data->xRxQueue, (const void *)&uart_data->rxdata, NULL);
-////        HAL_UART_Receive_IT(uart_data->huart, &uart_data->rxdata, 1);
-//	}		
-//}
-
-//void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-//{
-//    
-//	if (huart == &huart1)
-//	{
-//        struct UART_Data * uart_data = g_uart1_dev.priv_data;        
-
-////        HAL_UART_DeInit(uart_data->huart);
-////        HAL_UART_Init(uart_data->huart);
-////        
-////        HAL_UART_Receive_IT(uart_data->huart, &uart_data->rxdata, 1);
-//	}    
-//}
-
-
 static int stm32_uart_init(struct UART_Device *pDev, int baud, char parity, int data_bit, int stop_bit)
 {
     struct UART_Data * uart_data = pDev->priv_data;
@@ -91,11 +56,18 @@ static int stm32_uart_send(struct UART_Device *pDev, uint8_t *datas, uint32_t le
 	}
 }
 
+u8 test_data[50] = {0};
+int i = 0;
 static int stm32_uart_recv(struct UART_Device *pDev, uint8_t *pData, int timeout)
 {
     struct UART_Data * uart_data = pDev->priv_data;
 	if (pdPASS == xQueueReceive(uart_data->xRxQueue, pData, timeout))
+	{
+		test_data[i] = *pData;
+		i++;
+		i = i%50;
 		return 0;
+	}
 	else
 		return -1;
 }
@@ -134,24 +106,26 @@ struct UART_Device *GetUARTDevice(char *name)
 	return NULL;
 }
 
+
+
 void UART4_IRQHandler(void)
 {
 	u16 t;
 	S_UART *obj = &uart4;
-	struct UART_Data * uart_data = g_uart4_dev.priv_data; 
+	struct UART_Data *uart_data = g_uart4_dev.priv_data; 
+	
 	if(obj->uart->SR & 0x28)//接收和过载
 	{
 		t=(u8)(obj->uart->DR);    
 		uart_data->rxdata = t;		
 		xQueueSendFromISR(uart_data->xRxQueue, (const void *)&uart_data->rxdata, NULL);
-//		Queue_set_1(t,&(obj->que_rx));
 	}
 	if(obj->uart->CR1 & (1<<7) && obj->uart->SR & 0x80)//发送空中断TXE
 	{
 		u8 tmp;
 		if(Queue_get_1(&tmp,&(obj->que_tx))==0)
 		{
-			obj->uart->DR=tmp;
+			obj->uart->DR = tmp;
 		}
 		else
 		{

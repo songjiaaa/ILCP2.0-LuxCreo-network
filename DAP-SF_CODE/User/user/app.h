@@ -70,6 +70,8 @@ void run_task( void * pvParameters );
 extern TaskHandle_t init_task_handler;
 void init_task(void * pvParameters);
 
+void modbus_pro_task(void * pvParameters);
+
 int get_que_data(u8 *p,Queue *q);
 
 
