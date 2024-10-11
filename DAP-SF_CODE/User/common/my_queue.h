@@ -47,6 +47,8 @@ t_maxs Queue_wseek(t_maxs n,Queue *q); //调整写指针，返回是否出错,�
 t_maxs Queue_set_1(u8 p,Queue *q);	//队成功返回0，失败返回1
 t_maxs Queue_get_1(u8 *p,Queue *q); //出队成功返回0，失败返回非零
 
+int get_que_data(u8 *p,Queue *q);
+
 #ifdef __cplusplus
 } //extern "C"
 #endif

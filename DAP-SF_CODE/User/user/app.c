@@ -27,7 +27,7 @@ void start_task(void *pvParameters)
 //	xTaskCreate( run_task, "run_task", 512, NULL, 6, &run_task_handler );
 //	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
 	
-	xTaskCreate( init_task, "init_task",512, NULL, 10, &init_task_handler );	
+	xTaskCreate( init_task, "init_task",512, NULL, 9, &init_task_handler );	
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
 	xTaskCreate( modbus_pro_task, "modbus_pro_task", 256, NULL, 3, &modbus_pro_task_handler );
 
@@ -35,7 +35,7 @@ void start_task(void *pvParameters)
 	vTaskDelete(start_task_handler);
 }
 
-
+int weight_data = 0;
 //初始化任务
 void init_task(void * pvParameters)
 {
@@ -47,6 +47,8 @@ void init_task(void * pvParameters)
 	uart_initial(&uart1,115200);  //dbug
 	uart_initial(&uart3,115200);  
 	uart_initial(&uart4,115200);  //外部接口 MODBUS协议
+	
+	hx711_io_init();
 	
 //	ADC1_Config();                //注意冲突引脚
 	
@@ -74,6 +76,7 @@ void init_task(void * pvParameters)
 //				}
 			}
 		}
+//		weight_data = hx711_recv();
 		vTaskDelay(10);
 	}
 }
@@ -144,8 +147,9 @@ void modbus_pro_task(void * pvParameters)
 			/* Filtered queries return 0 */
 		} while (rc == 0);
 		
-		if (rc == -1 && errno != EMBBADCRC) {
-			/* Quit */
+		if (rc == -1 || errno == EMBBADCRC)    //帧错误或crc错误则不回复
+		{
+			vTaskDelay(10);
 			continue;
 		}
 		mb_mapping->tab_bits++;
@@ -190,7 +194,7 @@ static void uv_total_time_callback(TimerHandle_t xTimer)
 	
 	if(UV_POWER_PER1 > 10 || UV_POWER_PER2 > 10)
 		save_time.uv_total_time ++;	
-
+	
 
 }
 
@@ -200,6 +204,7 @@ static void motor_runtime_callback(TimerHandle_t xTimer)
 
 }
 
+float weight_d = 0;
 void software_timer_task( void * pvParameters )
 {
 	timer_1000ms = xTimerCreate("count_timer",1000,pdTRUE,NULL,uv_total_time_callback);
@@ -209,7 +214,8 @@ void software_timer_task( void * pvParameters )
     while(1)
     {
 //		uart_send((u8*)"test_ch340aaaaa\r\n",sizeof("test_ch340aaaaa\r\n"),&uart4);
-		
+		weight_data = hx711_recv();
+		weight_d = weight_data * 3.3f / 16777216.0f;
 		LED_IND ^= 1;	
         vTaskDelay(500);
     }
@@ -266,15 +272,6 @@ void door_task(void)
 
 
 
-int get_que_data(u8 *p,Queue *q)
-{
-	int rst=1;
-
-	taskENTER_CRITICAL();
-	rst=Queue_get_1(p,q);
-	taskEXIT_CRITICAL();
-	return rst;
-}
 
 
 

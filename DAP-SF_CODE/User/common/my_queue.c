@@ -183,3 +183,14 @@ t_maxs Queue_get_1(u8 *p,Queue *q) //出队成功返回0，失败返回非零
 	return 1;
 }
 
+
+int get_que_data(u8 *p,Queue *q)
+{
+	int rst=1;
+
+//	taskENTER_CRITICAL();
+	rst=Queue_get_1(p,q);
+//	taskEXIT_CRITICAL();
+	return rst;
+}
+

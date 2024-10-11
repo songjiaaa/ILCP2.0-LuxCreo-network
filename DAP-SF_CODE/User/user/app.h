@@ -1,5 +1,6 @@
 #ifndef APP_H
 #define APP_H
+
 #include <stdio.h>
 
 #include "FreeRTOS.h"
@@ -24,8 +25,8 @@
 
 #include "adc.h"
 #include "ntc.h"  
-#include "htu21d.h"
-#include "rtc.h"
+//#include "htu21d.h"
+//#include "rtc.h"
 
 
 #include "w25qxx.h"  
@@ -41,6 +42,8 @@
 
 #include "config.h"
 #include "version.h"
+
+#include "hx711.h"
 
 
 extern RTC_TimeTypeDef RTC_TimeStruct;
@@ -72,7 +75,7 @@ void init_task(void * pvParameters);
 
 void modbus_pro_task(void * pvParameters);
 
-int get_que_data(u8 *p,Queue *q);
+
 
 
 #endif

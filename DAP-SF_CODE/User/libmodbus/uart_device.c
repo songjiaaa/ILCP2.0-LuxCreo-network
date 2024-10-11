@@ -56,16 +56,12 @@ static int stm32_uart_send(struct UART_Device *pDev, uint8_t *datas, uint32_t le
 	}
 }
 
-u8 test_data[50] = {0};
-int i = 0;
+
 static int stm32_uart_recv(struct UART_Device *pDev, uint8_t *pData, int timeout)
 {
     struct UART_Data * uart_data = pDev->priv_data;
 	if (pdPASS == xQueueReceive(uart_data->xRxQueue, pData, timeout))
 	{
-		test_data[i] = *pData;
-		i++;
-		i = i%50;
 		return 0;
 	}
 	else

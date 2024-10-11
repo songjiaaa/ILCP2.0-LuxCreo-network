@@ -704,6 +704,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\hal\gpio_init.c</FilePath>
             </File>
+            <File>
+              <FileName>hx711.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\hal\hx711.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
