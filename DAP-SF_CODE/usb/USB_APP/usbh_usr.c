@@ -46,16 +46,12 @@ void USBH_USR_Init(void)
 //检测到U盘插入
 void USBH_USR_DeviceAttached(void)//U盘插入
 {
-	cfg_dft.u_disk_state = 1;
-
 	vTaskDelay(1500);
 	printf("检测到USB设备插入!\r\n");
 }
 //检测到U盘拔出
 void USBH_USR_DeviceDisconnected (void)//U盘移除
 {
-	cfg_dft.u_disk_state = 0;
-
 	vTaskDelay(1500);
 
 	printf("USB设备拔出!\r\n");
@@ -138,7 +134,6 @@ void USBH_USR_EnumerationDone(void)
 //无法识别的USB设备
 void USBH_USR_DeviceNotSupported(void)
 {
-	cfg_dft.u_disk_state = 2;
 	vTaskDelay(1000);
 //	printf("无法识别的USB设备!\r\n\r\n");    
 }  

@@ -203,15 +203,15 @@ u8 USH_User_App(void)
 
 	if(HCD_IsDeviceConnected(&USB_OTG_Core))//设备连接成功
 	{
-		if(cfg_dft.u_disk_state != 99)
-		{
-			stat = f_mount(&f_fs[2],"2:",1);  //U盘
-			if(stat == FR_OK)
-			{
-				cfg_dft.u_disk_state = 99;
-				printf("设备已连接\r\n");
-			}
-		}
+//		if(cfg_dft.u_disk_state != 99)
+//		{
+//			stat = f_mount(&f_fs[2],"2:",1);  //U盘
+//			if(stat == FR_OK)
+//			{
+//				cfg_dft.u_disk_state = 99;
+//				printf("设备已连接\r\n");
+//			}
+//		}
 	}
 	else
 	{
