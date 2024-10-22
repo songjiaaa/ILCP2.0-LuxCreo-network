@@ -8,20 +8,21 @@ USB_OTG_CORE_HANDLE  USB_OTG_Core;
 SD_Error SD_state;
 
 TaskHandle_t start_task_handler;
-
 TaskHandle_t software_timer_handler;
 TaskHandle_t get_sensor_data_handler;
 TaskHandle_t run_task_handler;
 TaskHandle_t init_task_handler;
 TaskHandle_t modbus_pro_task_handler;
 
+modbus_data_t m_data_t = {0};
+
 //启动任务
 void start_task(void *pvParameters)
 {
 	xTaskCreate( init_task, "init_task",512, NULL, 9, &init_task_handler );	
-	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
+//	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
-	xTaskCreate( modbus_pro_task, "modbus_pro_task", 256, NULL, 3, &modbus_pro_task_handler );
+	xTaskCreate( modbus_pro_task, "modbus_pro_task", 1024, NULL, 3, &modbus_pro_task_handler );
 
 	vTaskDelete(start_task_handler);
 }
@@ -74,13 +75,14 @@ void init_task(void * pvParameters)
 
 
 
-
+u8 modbus_rx_data[MODBUS_RTU_MAX_ADU_LENGTH];
+modbus_mapping_t *mb_mapping = NULL;
 void modbus_pro_task(void * pvParameters)
 {
 	int rc;
 	u8 *query;
 	modbus_t *ctx = NULL;
-	modbus_mapping_t *mb_mapping = NULL;
+//	modbus_mapping_t *mb_mapping = NULL;
 	ctx = modbus_new_st_rtu("uart4", 115200, 'N', 8, 1);
 	modbus_set_slave(ctx, 2);
 	
@@ -93,7 +95,7 @@ void modbus_pro_task(void * pvParameters)
 												  0,          //输入寄存器   
 												  10,
 												  REG_START_ADDR,          //保持寄存器  03 读 06写 10 多写 
-												  800);
+												  2000);
 	
 	rc = modbus_connect(ctx);
 	if (rc == -1) 
@@ -112,16 +114,17 @@ void modbus_pro_task(void * pvParameters)
 		
 		if (rc == -1 || errno == EMBBADCRC)    //帧错误或crc错误则不回复
 		{
-			vTaskDelay(10);
+//			vTaskDelay(10);
 			continue;
 		}
-//		mb_mapping->tab_bits++;
-//		mb_mapping->tab_input_bits++;
-//		mb_mapping->tab_input_registers[0] ++;
-//		mb_mapping->tab_input_registers[1] ++;
-//		mb_mapping->tab_registers[0]++;
-		mb_mapping->tab_registers[BAND_REG] = 6754;
-		mb_mapping->tab_registers[REMAIN_RESIN_WEIGHT] = 12345;
+		mb_mapping->tab_bits++;
+		mb_mapping->tab_input_bits++;
+		mb_mapping->tab_input_registers[0] ++;
+		mb_mapping->tab_input_registers[1] ++;
+		mb_mapping->tab_registers[0]++;
+		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
+//		mb_mapping->tab_registers[BAND_REG] = 6754;
+//		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
 		rc = modbus_reply(ctx, query, rc, mb_mapping);
 		if (rc == -1) {
 			break;
@@ -179,9 +182,13 @@ void software_timer_task( void * pvParameters )
 //获取传感器数据以及显示任务
 void get_sensor_data_task( void * pvParameters )
 {
+	
 	while(1)
-    {		
-		get_weight();
+    {	
+
+		m_data_t.resin_weight = (int)get_weight();
+		MINMAX(m_data_t.resin_weight,0,0xFFFF);
+		
         vTaskDelay(10);
     }
 }

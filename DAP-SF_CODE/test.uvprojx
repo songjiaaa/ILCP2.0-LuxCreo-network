@@ -690,11 +690,6 @@
               <FilePath>.\User\hal\dwt_delay.c</FilePath>
             </File>
             <File>
-              <FileName>htu21d.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\hal\htu21d.c</FilePath>
-            </File>
-            <File>
               <FileName>ws2812b.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\hal\ws2812b.c</FilePath>

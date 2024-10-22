@@ -25,7 +25,7 @@
 
 #include "adc.h"
 #include "ntc.h"  
-//#include "htu21d.h"
+
 //#include "rtc.h"
 
 
@@ -127,25 +127,42 @@ void modbus_pro_task(void * pvParameters);
 #define  START_UPDATE_COMMAND_REG   (START_UPDATE_COMMAND_ADDR - REG_START_ADDR)          //启动更新标志
 
 //线圈寄存器
-#define  IP_CAMERA_POWER_REG   0x0680    
-#define  LIQUID_IN_SWITCH_REG  0x0681
+#define  IP_CAMERA_POWER_REG   0x0680        //IP相机电源
+#define  LIQUID_IN_SWITCH_REG  0x0681        //注液进料开关
 
 
 //IO输入检测
 #pragma pack(1)
 typedef struct
 {
-	u8 ip_camera_power;   //IP相机电源
-	u8 liquid_in_switch;   //液体进料开关
-}io_input_state_t;
+    u16 material:             1,   //料盒到位检测
+        bucket:               1,   //料筒到位检测
+        liquid_max:           1,   //注液满检测
+        liquid_overflow:      1,   //注液溢出检测
+        surplus_material:     1,   //料盒剩余检测
+        surplus_bucket:       1,   //料筒剩余检测
+        empty_cantilever:     1,   //空悬臂检测
+        bucket_rfid_stete:    1,   //料筒RFID状态
+        material_rfid_stete:  1,   //料盒RFID状态
+        reserved:             7;  //保留位
+}in_state_t;
 #pragma pack()
 
 //IO输出检测
+#pragma pack(1)
+typedef struct
+{
+    u16 ip_camera_power:      1,   //IP相机电源
+        liquid_in_switch:     1,   //注液进料开关
+        reserved:             14;   //保留位
+}out_state_t;
+#pragma pack()
+
 
 #pragma pack(1)
 typedef struct
 {
-	u32 resin_weight;    //树脂重量
+	int resin_weight;    //树脂重量
     u32 write_resin_weight;   //写入树脂重量
 	u32 resin_volume;    //树脂容积
     u8 resin_band[30];   //树脂品牌名
@@ -157,10 +174,12 @@ typedef struct
 	u8 leap_name[30];    //膜名字
 
 	u8 sn[30];   //SN
-    u32 weight_zero;   //称重归零
+    int weight_zero;   //称重归零
 
-	u8 io_input_state;   //IO输入检测
-	u8 io_out_state;   //IO输出检测
+	in_state_t io_input_state;   //IO输入检测
+	out_state_t io_out_state;   //IO输出检测
+	
+
 	u8 heartbeat_frame;   //心跳检测
 	u8 program_version[30];   //版本信息查询
 	u8 file_transfer_flags;   //文件传输标志   1发送文件   0 结束文件传输
