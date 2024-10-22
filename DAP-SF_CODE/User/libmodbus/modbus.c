@@ -101,7 +101,7 @@ static void _sleep_response_timeout(modbus_t *ctx)
     Sleep((ctx->response_timeout.tv_sec * 1000) + (ctx->response_timeout.tv_usec / 1000));
 #else
     /* usleep source code */
-	vTaskDelay(ctx->response_timeout.tv_sec / 1000 + ctx->response_timeout.tv_usec * 1000);
+	vTaskDelay((ctx->response_timeout.tv_sec * 1000) + (ctx->response_timeout.tv_usec / 1000));
 //    while (nanosleep(&request, &remaining) == -1 && errno == EINTR) {
 //        request = remaining;
 //    }

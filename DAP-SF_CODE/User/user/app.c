@@ -20,7 +20,7 @@ modbus_data_t m_data_t = {0};
 void start_task(void *pvParameters)
 {
 	xTaskCreate( init_task, "init_task",512, NULL, 9, &init_task_handler );	
-//	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
+	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
 	xTaskCreate( modbus_pro_task, "modbus_pro_task", 1024, NULL, 3, &modbus_pro_task_handler );
 
@@ -92,10 +92,10 @@ void modbus_pro_task(void * pvParameters)
 												  2,          //ÏßÈ¦¸öÊý
 												  0,          //ÀëÉ¢ÊäÈë¼Ä´æÆ÷
 												  10,         //¼Ä´æÆ÷¸öÊý
-												  0,          //ÊäÈë¼Ä´æÆ÷   
-												  10,
-												  REG_START_ADDR,          //±£³Ö¼Ä´æÆ÷  03 ¶Á 06Ð´ 10 ¶àÐ´ 
-												  2000);
+												  REG_START_ADDR,          //ÊäÈë¼Ä´æÆ÷   
+												  1000,
+												  0,          //±£³Ö¼Ä´æÆ÷  03 ¶Á 06Ð´ 10 ¶àÐ´ 
+												  10);
 	
 	rc = modbus_connect(ctx);
 	if (rc == -1) 
@@ -117,14 +117,14 @@ void modbus_pro_task(void * pvParameters)
 //			vTaskDelay(10);
 			continue;
 		}
-		mb_mapping->tab_bits++;
-		mb_mapping->tab_input_bits++;
-		mb_mapping->tab_input_registers[0] ++;
-		mb_mapping->tab_input_registers[1] ++;
-		mb_mapping->tab_registers[0]++;
+//		mb_mapping->tab_bits++;
+//		mb_mapping->tab_input_bits++;
+//		mb_mapping->tab_input_registers[0] ++;
+//		mb_mapping->tab_input_registers[1] ++;
+//		mb_mapping->tab_registers[0]++;
 		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
-//		mb_mapping->tab_registers[BAND_REG] = 6754;
-//		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
+		mb_mapping->tab_registers[BAND_REG] = 6754;
+		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
 		rc = modbus_reply(ctx, query, rc, mb_mapping);
 		if (rc == -1) {
 			break;
@@ -139,16 +139,7 @@ void modbus_pro_task(void * pvParameters)
 }
 
 
-void usb_disk_task( void * pvParameters )
-{
-//	USBH_Init(&USB_OTG_Core,USB_OTG_FS_CORE_ID,&USB_Host,&USBH_MSC_cb,&USR_Callbacks);	
-//	vTaskDelay(500);
-    while(1)
-    {
-//		USBH_Process(&USB_OTG_Core, &USB_Host);
-        vTaskDelay(20);
-    }
-}
+
 
 
 //TimerHandle_t  timer_1000ms;
@@ -194,7 +185,7 @@ void get_sensor_data_task( void * pvParameters )
 }
 
 
-//UBaseType_t usbstack_size = 0;
+
 //UBaseType_t runstack_size = 0;
 //UBaseType_t getrunstack_size = 0;
 //UBaseType_t softwarestack_size = 0;
@@ -210,7 +201,7 @@ void run_task( void * pvParameters )
     {
 		//²éÑ¯ÈÎÎñ¶ÑÕ»Çé¿ö
 	
-//		usbstack_size = uxTaskGetStackHighWaterMark(usb_task_handler);
+
 //		runstack_size = uxTaskGetStackHighWaterMark(run_task_handler);
 //		getrunstack_size = uxTaskGetStackHighWaterMark(get_sensor_data_handler);
 //		softwarestack_size = uxTaskGetStackHighWaterMark(software_timer_handler);

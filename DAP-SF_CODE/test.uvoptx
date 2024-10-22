@@ -157,41 +157,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>167</LineNumber>
+          <LineNumber>130</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228306</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\User\libmodbus\modbus-st-rtu.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\FreeRTOS_F407\User/libmodbus/modbus-st-rtu.c\167</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>178</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134228338</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\User\libmodbus\modbus-st-rtu.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\FreeRTOS_F407\User/libmodbus/modbus-st-rtu.c\178</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>138</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134232074</Address>
+          <Address>134232244</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -200,23 +168,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\user\app.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\FreeRTOS_F407\User/user/app.c\138</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>118</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134232042</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\User\user\app.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\FreeRTOS_F407\User/user/app.c\118</Expression>
+          <Expression>\\FreeRTOS_F407\User/user/app.c\130</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -384,6 +336,11 @@
           <count>32</count>
           <WinNumber>1</WinNumber>
           <ItemText>m_data_t.resin_weight,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>33</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctx</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
