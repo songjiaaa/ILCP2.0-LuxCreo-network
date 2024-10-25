@@ -7,10 +7,13 @@
 //#define TIMING_ONE  67        
 //#define TIMING_ZERO 34   
 
-#define TIMING_ONE  130        
-#define TIMING_ZERO 60 
+#define TIMING_ONE  50        
+#define TIMING_ZERO 25 
 
-#define RGB_LED_NUM  32           //µÆÖéÊý
+//#define TIMING_ONE  130        
+//#define TIMING_ZERO 60 
+
+#define RGB_LED_NUM  32          
 
 extern u8 rgb_light_state;
 extern u8 red[];

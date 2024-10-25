@@ -1,42 +1,42 @@
 #include "tim.h"
 
-//TIM5 CH2   PA1 
-void timer5_pwm_config(u32 arr,u32 psc)
-{		 					 
-	GPIO_InitTypeDef GPIO_InitStructure;
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef  TIM_OCInitStructure;
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5,ENABLE);  	  
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);	
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;          
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;        
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;      
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        
-	GPIO_Init(GPIOA,&GPIO_InitStructure);              
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource1,GPIO_AF_TIM5);
+////TIM5 CH2   PA1 
+//void timer5_pwm_config(u32 arr,u32 psc)
+//{		 					 
+//	GPIO_InitTypeDef GPIO_InitStructure;
+//	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+//	TIM_OCInitTypeDef  TIM_OCInitStructure;
+//	
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5,ENABLE);  	  
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);	
+//	
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;          
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;        
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;      
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        
+//	GPIO_Init(GPIOA,&GPIO_InitStructure);              
+//	GPIO_PinAFConfig(GPIOA,GPIO_PinSource1,GPIO_AF_TIM5);
 
-	TIM_TimeBaseStructure.TIM_Period = arr;
-	TIM_TimeBaseStructure.TIM_Prescaler = psc;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+//	TIM_TimeBaseStructure.TIM_Period = arr;
+//	TIM_TimeBaseStructure.TIM_Prescaler = psc;
+//	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+//	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-	TIM_TimeBaseInit(TIM5,&TIM_TimeBaseStructure);
-	
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 0;    // 不输出           
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-	
-	TIM_OC2Init(TIM5, &TIM_OCInitStructure);
-	TIM_OC2PreloadConfig(TIM5, TIM_OCPreload_Enable);
+//	TIM_TimeBaseInit(TIM5,&TIM_TimeBaseStructure);
+//	
+//	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+//	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+//	TIM_OCInitStructure.TIM_Pulse = 0;    // 不输出           
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+//	
+//	TIM_OC2Init(TIM5, &TIM_OCInitStructure);
+//	TIM_OC2PreloadConfig(TIM5, TIM_OCPreload_Enable);
 
-	TIM_ARRPreloadConfig(TIM5, ENABLE);
+//	TIM_ARRPreloadConfig(TIM5, ENABLE);
 
-	TIM_Cmd(TIM5, ENABLE);  								  
-}  
+//	TIM_Cmd(TIM5, ENABLE);  								  
+//}  
 
 
 //TIM4 CH3  CH4       PD14   PD15      LED_PWM

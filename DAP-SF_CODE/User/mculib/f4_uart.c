@@ -171,7 +171,7 @@ void USART1_IRQHandler(void)
 		uart1.uart->SR;
 		uart1.uart->DR;	
 
-//		vTaskNotifyGiveFromISR(dap_data_pro_handler,&xHigherPriorityTaskWoken); 
+		vTaskNotifyGiveFromISR(debug_task_handler,&xHigherPriorityTaskWoken); 
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);   //进行一次任务切换	
 		
 	}
@@ -209,7 +209,7 @@ void USART3_IRQHandler(void)
 	{
 		uart3.uart->SR;
 		uart3.uart->DR;	
-//		vTaskNotifyGiveFromISR(wifi_data_pro_handler,&xHigherPriorityTaskWoken); 
+		vTaskNotifyGiveFromISR(rfid2_task_handler,&xHigherPriorityTaskWoken); 
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);   //进行一次任务切换	
 	}
 	
@@ -255,7 +255,7 @@ void USART6_IRQHandler(void)
 	{
 		uart6.uart->SR;
 		uart6.uart->DR;
-//		vTaskNotifyGiveFromISR(lcd_data_pro_handler,&xHigherPriorityTaskWoken); 
+		vTaskNotifyGiveFromISR(rfid1_task_handler,&xHigherPriorityTaskWoken); 
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);   //进行一次任务切换		
 	}
 

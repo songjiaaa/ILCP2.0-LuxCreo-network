@@ -55,6 +55,20 @@ extern USB_OTG_CORE_HANDLE  USB_OTG_Core;
 extern SD_Error SD_state;
 
 
+extern TaskHandle_t debug_task_handler;
+void debug_task(void *pvParameters);
+
+extern TaskHandle_t rfid1_task_handler;
+void rfid1_task(void *pvParameters);
+
+extern TaskHandle_t rfid2_task_handler;
+void rfid2_task(void *pvParameters);
+
+void modbus_pro_task(void * pvParameters);
+
+
+
+
 extern TaskHandle_t start_task_handler;
 void start_task(void *pvParameters);
 
@@ -67,7 +81,10 @@ void get_sensor_data_task( void * pvParameters );
 extern TaskHandle_t init_task_handler;
 void init_task(void * pvParameters);
 
-void modbus_pro_task(void * pvParameters);
+
+
+
+
 
 
 //modbus addr  相应数据对应的modbus寄存器地址

@@ -19,58 +19,57 @@ void ws2812_init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
-
 	DMA_InitTypeDef DMA_InitStructure;
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5,ENABLE);  	  
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);	
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;          
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;          
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;        
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;      
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;      
-	GPIO_Init(GPIOC,&GPIO_InitStructure);              
-	GPIO_PinAFConfig(GPIOC,GPIO_PinSource8,GPIO_AF_TIM8);
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        
+	GPIO_Init(GPIOA,&GPIO_InitStructure);              
+	GPIO_PinAFConfig(GPIOA,GPIO_PinSource2,GPIO_AF_TIM5);
 
-	TIM_TimeBaseStructure.TIM_Period = 210-1; // 800kHz      168M/210 = 800k
+	TIM_TimeBaseStructure.TIM_Period = 105-1;
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
-
+	TIM_TimeBaseInit(TIM5,&TIM_TimeBaseStructure);
+	
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 0;
+	TIM_OCInitStructure.TIM_Pulse = 0;    // 不输出           
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	
 	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;    
 	  
     TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
     TIM_OCInitStructure.TIM_OCIdleState = TIM_OCNIdleState_Set;
-    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
-
+    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;	
 	
-	TIM_OC3Init(TIM8,&TIM_OCInitStructure);
-	TIM_OC3PreloadConfig(TIM8,TIM_OCPreload_Enable);
-	TIM_Cmd(TIM8, ENABLE);
-    TIM_CtrlPWMOutputs(TIM8,ENABLE);
 	
-	TIM_ARRPreloadConfig(TIM8,ENABLE);
+	TIM_OC3Init(TIM5, &TIM_OCInitStructure);
+	TIM_OC3PreloadConfig(TIM5, TIM_OCPreload_Enable);
 
+	TIM_ARRPreloadConfig(TIM5, DISABLE);
 
-    DMA_DeInit(DMA2_Stream4);
-    DMA_InitStructure.DMA_Channel = DMA_Channel_7;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(TIM8->CCR3);
+	TIM_Cmd(TIM5, DISABLE);  	
+	TIM_CtrlPWMOutputs(TIM5,DISABLE);
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+    DMA_DeInit(DMA1_Stream0);
+    DMA_InitStructure.DMA_Channel = DMA_Channel_6;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(TIM5->CCR3);
     DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)led_data_buf;
     DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
     DMA_InitStructure.DMA_BufferSize = 42;
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
     DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
     DMA_InitStructure.DMA_Priority = DMA_Priority_High;
     DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
@@ -78,9 +77,8 @@ void ws2812_init(void)
     DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
-    DMA_Init(DMA2_Stream4,&DMA_InitStructure);
-
-    TIM_DMACmd(TIM8,TIM_DMA_CC3, ENABLE);
+    DMA_Init(DMA1_Stream0,&DMA_InitStructure);
+    TIM_DMACmd(TIM5,TIM_DMA_CC3,DISABLE);
 }
 
 //颜色，灯珠个数，灯珠个数随实际使用而定。
@@ -90,7 +88,7 @@ void led_single_show(u8 color[], u16 len)
     u16 memaddr = 0;
     u16 buffersize = 0;
 
-    buffersize = (len * 24) + 1;       // number of bytes needed is #LEDs * 24 bytes + 42 trailing bytes
+    buffersize = (len * 24) + 42;       // number of bytes needed is #LEDs * 24 bytes + 42 trailing bytes
 
     while(len)
     {
@@ -111,21 +109,23 @@ void led_single_show(u8 color[], u16 len)
         }
         len--;
     }
-//	OS_CLOSE_INT;  //关中断
-    DMA_SetCurrDataCounter(DMA2_Stream4, buffersize);
-    TIM_DMACmd(TIM8, TIM_DMA_CC3, ENABLE);
-    DMA_Cmd(DMA2_Stream4, ENABLE);
-	TIM_Cmd(TIM8, ENABLE);
+
+    DMA_SetCurrDataCounter(DMA1_Stream0, buffersize);
+	TIM_ARRPreloadConfig(TIM5, ENABLE);
+    TIM_DMACmd(TIM5, TIM_DMA_CC3, ENABLE);
+	TIM_CtrlPWMOutputs(TIM5,ENABLE);
+    DMA_Cmd(DMA1_Stream0, ENABLE);
+	TIM_Cmd(TIM5, ENABLE);
 	
-    while(!DMA_GetFlagStatus(DMA2_Stream4, DMA_FLAG_TCIF4))
+    while(!DMA_GetFlagStatus(DMA1_Stream0, DMA_FLAG_TCIF0))
 	{
-//		vTaskDelay(1);
-	}
-	
-    DMA_Cmd(DMA2_Stream4, DISABLE);
-    DMA_ClearFlag(DMA2_Stream4, DMA_FLAG_TCIF4);
-    TIM_Cmd(TIM8, DISABLE);
-//	OS_OPEN_INT;  //开中断
+	}	
+	TIM_ARRPreloadConfig(TIM5, DISABLE);
+    TIM_DMACmd(TIM5, TIM_DMA_CC3, DISABLE);
+	TIM_CtrlPWMOutputs(TIM5,DISABLE);
+    DMA_Cmd(DMA1_Stream0, DISABLE);
+	TIM_Cmd(TIM5, DISABLE);
+	DMA_ClearFlag(DMA1_Stream0, DMA_FLAG_TCIF0);
 }
 
 
@@ -164,20 +164,22 @@ void rgb_ctrl_show(u8 *color[], u16 len)
         }
     }
 
-	DMA_SetCurrDataCounter(DMA2_Stream4, buffersize);
-
-    TIM_DMACmd(TIM8, TIM_DMA_CC3, ENABLE);
-    DMA_Cmd(DMA2_Stream4, ENABLE);
-	TIM_Cmd(TIM8, ENABLE);
+    DMA_SetCurrDataCounter(DMA1_Stream0, buffersize);
+	TIM_ARRPreloadConfig(TIM5, ENABLE);
+    TIM_DMACmd(TIM5, TIM_DMA_CC3, ENABLE);
+	TIM_CtrlPWMOutputs(TIM5,ENABLE);
+    DMA_Cmd(DMA1_Stream0, ENABLE);
+	TIM_Cmd(TIM5, ENABLE);
 	
-    while(!DMA_GetFlagStatus(DMA2_Stream4, DMA_FLAG_TCIF4))
+    while(!DMA_GetFlagStatus(DMA1_Stream0, DMA_FLAG_TCIF0))
 	{
-//		vTaskDelay(1);
-	}
-	
-    DMA_Cmd(DMA2_Stream4, DISABLE);
-    DMA_ClearFlag(DMA2_Stream4, DMA_FLAG_TCIF4);
-    TIM_Cmd(TIM8, DISABLE);
+	}	
+	TIM_ARRPreloadConfig(TIM5, DISABLE);
+    TIM_DMACmd(TIM5, TIM_DMA_CC3, DISABLE);
+	TIM_CtrlPWMOutputs(TIM5,DISABLE);
+    DMA_Cmd(DMA1_Stream0, DISABLE);
+	TIM_Cmd(TIM5, DISABLE);
+	DMA_ClearFlag(DMA1_Stream0, DMA_FLAG_TCIF0);
 }
 
 

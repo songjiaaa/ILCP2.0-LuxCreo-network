@@ -7,12 +7,18 @@ USBH_HOST USB_Host;
 USB_OTG_CORE_HANDLE  USB_OTG_Core;
 SD_Error SD_state;
 
+
+TaskHandle_t debug_task_handler;
+TaskHandle_t rfid1_task_handler;
+TaskHandle_t rfid2_task_handler;
+TaskHandle_t modbus_pro_task_handler;
+
 TaskHandle_t start_task_handler;
 TaskHandle_t software_timer_handler;
 TaskHandle_t get_sensor_data_handler;
 TaskHandle_t run_task_handler;
 TaskHandle_t init_task_handler;
-TaskHandle_t modbus_pro_task_handler;
+
 
 modbus_data_t m_data_t = {0};
 
@@ -22,12 +28,12 @@ void start_task(void *pvParameters)
 	xTaskCreate( init_task, "init_task",512, NULL, 9, &init_task_handler );	
 	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
-	xTaskCreate( modbus_pro_task, "modbus_pro_task", 1024, NULL, 3, &modbus_pro_task_handler );
+	xTaskCreate( modbus_pro_task, "modbus_pro_task", 256, NULL, 3, &modbus_pro_task_handler );
 
 	vTaskDelete(start_task_handler);
 }
 
-int weight_data = 0;
+
 //初始化任务
 void init_task(void * pvParameters)
 {
@@ -37,11 +43,12 @@ void init_task(void * pvParameters)
 	gpio_init();
 	
 	uart_initial(&uart1,115200);  //dbug
-	uart_initial(&uart3,115200);  
+	uart_initial(&uart3,115200);  //RFID 2 
 	uart_initial(&uart4,115200);  //外部接口 MODBUS协议
+	uart_initial(&uart6,115200);  //RFID 1
 	
 	hx711_io_init();
-	
+	ws2812_init();
 //	ADC1_Config();                //注意冲突引脚
 	
 	cmd_ini(); 
@@ -68,7 +75,7 @@ void init_task(void * pvParameters)
 //				}
 			}
 		}
-//		weight_data = hx711_recv();
+		led_single_show(yellow,RGB_LED_NUM);  
 		vTaskDelay(10);
 	}
 }
@@ -76,13 +83,12 @@ void init_task(void * pvParameters)
 
 
 u8 modbus_rx_data[MODBUS_RTU_MAX_ADU_LENGTH];
-modbus_mapping_t *mb_mapping = NULL;
 void modbus_pro_task(void * pvParameters)
 {
 	int rc;
 	u8 *query;
 	modbus_t *ctx = NULL;
-//	modbus_mapping_t *mb_mapping = NULL;
+	modbus_mapping_t *mb_mapping = NULL;
 	ctx = modbus_new_st_rtu("uart4", 115200, 'N', 8, 1);
 	modbus_set_slave(ctx, 2);
 	
@@ -125,7 +131,7 @@ void modbus_pro_task(void * pvParameters)
 		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
 		mb_mapping->tab_registers[BAND_REG] = 6754;
 		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
-		rc = modbus_reply(ctx, query, rc, mb_mapping);
+		rc = modbus_reply(ctx,query,rc,mb_mapping);
 		if (rc == -1) {
 			break;
 		}
@@ -176,7 +182,6 @@ void get_sensor_data_task( void * pvParameters )
 	
 	while(1)
     {	
-
 		m_data_t.resin_weight = (int)get_weight();
 		MINMAX(m_data_t.resin_weight,0,0xFFFF);
 		
@@ -192,11 +197,6 @@ void get_sensor_data_task( void * pvParameters )
 //UBaseType_t initstack_size = 0;
 void run_task( void * pvParameters )
 {
-//	LOG_COLOUR_GREEN;
-//	vTaskDelay(1000);
-//	LOG_COLOUR_BLACK;
-//	vTaskDelay(800);
-//	LOG_COLOUR_GREEN;	
     while(1)
     {
 		//查询任务堆栈情况
@@ -206,20 +206,81 @@ void run_task( void * pvParameters )
 //		getrunstack_size = uxTaskGetStackHighWaterMark(get_sensor_data_handler);
 //		softwarestack_size = uxTaskGetStackHighWaterMark(software_timer_handler);
 //		initstack_size = uxTaskGetStackHighWaterMark(init_task_handler);
-		
-
+	
         vTaskDelay(5);
     }
 }
 
 
+//DUG任务
+void debug_task(void *pvParameters)
+{
+	u8 tt;
+	u32 notify_value = 0;
+	while(1)
+	{
+		notify_value = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+		if( notify_value == 1 )
+		{
+			while( get_que_data(&tt,&uart1.que_rx) == 0 )
+			{
+				
+			}
+		}
+		else
+		{
+			vTaskDelay(10);
+		}
+	}
+	
+}
 
 
+//RFID1 
+void rfid1_task(void *pvParameters)
+{
+	u8 tt;
+	u32 notify_value = 0;
+	while(1)
+	{
+		notify_value = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+		if( notify_value == 1 )
+		{
+			while( get_que_data(&tt,&uart6.que_rx) == 0 )
+			{
+				
+			}
+		}
+		else
+		{
+			vTaskDelay(10);
+		}
+	}
+	
+}
 
-
-
-
-
+//rfid2
+void rfid2_task(void *pvParameters)
+{
+	u8 tt;
+	u32 notify_value = 0;
+	while(1)
+	{
+		notify_value = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+		if( notify_value == 1 )
+		{
+			while( get_que_data(&tt,&uart3.que_rx) == 0 )
+			{
+				
+			}
+		}
+		else
+		{
+			vTaskDelay(10);
+		}
+	}
+	
+}
 
 
 
