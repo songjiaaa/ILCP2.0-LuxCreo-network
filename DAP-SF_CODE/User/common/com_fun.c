@@ -107,6 +107,16 @@ u8 Get_CRC8(u8 *ptr, u8 len)
     return (crc);
 }
 
+//异或校验
+u8 check_xor(u8 *buf,int len)
+{
+	u8 xor_operation = 0;
+	for(int i = 0;i<len;i++)
+	{
+		xor_operation ^= buf[i];
+	}
+	return xor_operation;
+}
 
 // CRC64 ECMA变种的多项式
 const u64 POLY64REV = 0x95765575563ccdc9ULL;

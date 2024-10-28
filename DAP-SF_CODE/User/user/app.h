@@ -44,7 +44,7 @@
 #include "version.h"
 
 #include "hx711.h"
-
+#include "rfid.h"
 
 extern RTC_TimeTypeDef RTC_TimeStruct;
 extern RTC_DateTypeDef RTC_DateStruct;

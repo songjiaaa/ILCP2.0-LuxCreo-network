@@ -14,14 +14,14 @@ S_UART uart2=
 {
 	USART2,
 };
-static u8 uart2_tx_buf[2000];
-static u8 uart2_rx_buf[2000];
+static u8 uart2_tx_buf[500];
+static u8 uart2_rx_buf[500];
 S_UART uart3=
 {
 	USART3,
 };
-static u8 uart3_tx_buf[2000];
-static u8 uart3_rx_buf[2000];
+static u8 uart3_tx_buf[500];
+static u8 uart3_rx_buf[500];
 S_UART uart4=
 {
 	UART4,
@@ -38,7 +38,7 @@ S_UART uart6=
 {
 	USART6,
 };
-static u8 uart6_tx_buf[2000];
+static u8 uart6_tx_buf[500];
 static u8 uart6_rx_buf[500];
 
 void uart_initial(S_UART *obj,int b)
@@ -153,6 +153,7 @@ void uart_irq(S_UART *obj)
 		else
 		{
 			obj->uart->CR1 &= ~(1<<7);//TXE
+			RFID1_EN  = 0;
 		}
 	}
 }
@@ -251,7 +252,7 @@ void USART6_IRQHandler(void)
 	
 	uart_irq(&uart6);
 	
-	if(uart6.uart->CR1 & (1<<4) && uart6.uart->SR & 0x10)  //空闲中断
+	if(uart6.uart->CR1 & (1<<4) && uart6.uart->SR & 0x10)  //接收空闲中断
 	{
 		uart6.uart->SR;
 		uart6.uart->DR;

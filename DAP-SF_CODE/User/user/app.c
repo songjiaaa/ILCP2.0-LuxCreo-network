@@ -25,7 +25,9 @@ modbus_data_t m_data_t = {0};
 //Æô¶¯ÈÎÎñ
 void start_task(void *pvParameters)
 {
-	xTaskCreate( init_task, "init_task",512, NULL, 9, &init_task_handler );	
+	xTaskCreate( init_task, "init_task", 512, NULL, 9, &init_task_handler );	
+	xTaskCreate( rfid1_task, "rfid1_task", 512, NULL, 7, &rfid1_task_handler);
+	xTaskCreate( rfid2_task, "rfid2_task", 512, NULL, 7, &rfid2_task_handler);
 	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
 	xTaskCreate( modbus_pro_task, "modbus_pro_task", 256, NULL, 3, &modbus_pro_task_handler );
@@ -246,9 +248,9 @@ void rfid1_task(void *pvParameters)
 		notify_value = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
 		if( notify_value == 1 )
 		{
-			while( get_que_data(&tt,&uart6.que_rx) == 0 )
+			while( get_que_data(&tt,&uart6.que_rx) == 0 )   //uart6
 			{
-				
+				rec_head(tt,&rfid1_pack);
 			}
 		}
 		else

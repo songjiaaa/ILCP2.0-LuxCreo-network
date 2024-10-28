@@ -15,6 +15,8 @@ u16 check_sum16(u8 *p,int n);
 u16 cal_crc(u8 *ptr,u32 len);
 u16 GetModbusCRC16(u8 *cp,int leng);
 u8 Get_CRC8(u8 *ptr, u8 len);
+u8 check_xor(u8 *buf,int len);
+
 u64 crc64ecma(const unsigned char *data, int len);
 
 #ifdef __cplusplus

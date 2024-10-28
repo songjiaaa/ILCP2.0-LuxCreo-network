@@ -23,6 +23,8 @@
 
 #define KEY_DET               PBin(1)
 
+#define RFID1_EN              PDout(1)
+
 #define VK36_OUT0             PEin(8)
 #define VK36_OUT1             PEin(7)
 

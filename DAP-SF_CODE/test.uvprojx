@@ -649,6 +649,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\user\version.c</FilePath>
             </File>
+            <File>
+              <FileName>rfid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\user\rfid.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
