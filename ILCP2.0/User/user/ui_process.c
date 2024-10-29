@@ -58,7 +58,6 @@ u8 touch_cmd_pro(u8 *b ,int len)
 					
 					switch_icon(0x0005,0x0009,scene_mode - 1);
 			
-
 					show_cur_cure_page(0);  
 					set_screen(5);            
 				}

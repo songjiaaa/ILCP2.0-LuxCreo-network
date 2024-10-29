@@ -6,7 +6,7 @@ void  SendChar(uchar t)
 //	while(USART_GetFlagStatus(UART_LCD,USART_FLAG_TXE)==RESET){};
 //    USART_SendData(UART_LCD,t);
 	uart_send(&t,1,&uart6);
-	uart_send(&t,1,&uart1);
+//	uart_send(&t,1,&uart1);
 }
 
 //void send_str(u8 *p,int n) 

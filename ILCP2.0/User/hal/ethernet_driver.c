@@ -9,7 +9,7 @@ char eth_server_ip[30] = {0};
 void usr_k5_tx(u8 *p,int n)
 {
 	uart_send(p,n,&uart2);
-	uart_send(p,n,&uart1);
+//	uart_send(p,n,&uart1);
 }
 
 COMM_SYNC ethernet_data_pack=

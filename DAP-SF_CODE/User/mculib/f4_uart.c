@@ -153,7 +153,6 @@ void uart_irq(S_UART *obj)
 		else
 		{
 			obj->uart->CR1 &= ~(1<<7);//TXE
-			RFID1_EN  = 0;
 		}
 	}
 }
@@ -246,12 +245,31 @@ void UART5_IRQHandler(void)
 
 void USART6_IRQHandler(void)
 {
+	u16 t;
 	BaseType_t xHigherPriorityTaskWoken; 
 	uint32_t ulReturn;
+
 	ulReturn = taskENTER_CRITICAL_FROM_ISR();	/* 进入临界段，临界段可以嵌套 */
 	
-	uart_irq(&uart6);
-	
+//	uart_irq(&uart6);
+	if(uart6.uart->SR & 0x28)//接收和过载
+	{
+		t=(u8)(uart6.uart->DR);
+		Queue_set_1(t,&(uart6.que_rx));
+	}
+	if(uart6.uart->CR1 & (1<<7) && uart6.uart->SR & 0x80)//发送空中断TXE
+	{
+		u8 tmp;
+		if(Queue_get_1(&tmp,&(uart6.que_tx))==0)
+		{
+			uart6.uart->DR=tmp;
+		}
+		else
+		{
+			uart6.uart->CR1 &= ~(1<<7);//TXE
+			RFID1_EN  = 0;
+		}
+	}
 	if(uart6.uart->CR1 & (1<<4) && uart6.uart->SR & 0x10)  //接收空闲中断
 	{
 		uart6.uart->SR;

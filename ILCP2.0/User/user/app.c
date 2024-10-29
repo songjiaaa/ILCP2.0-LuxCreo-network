@@ -196,6 +196,7 @@ void wifi_data_pro_task(void *pvParameters)
 		{
 			while(get_que_data(&tt,&uart3.que_rx)==0)
 			{
+				uart_send(&tt,1,&uart1);
 				wifi_data_pack.rec_buff[wifi_data_pack.rec_p++] = tt;
 				wifi_data_pack.rec_p %= wifi_data_pack.buf_len;
 			}

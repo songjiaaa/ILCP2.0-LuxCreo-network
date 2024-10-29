@@ -1,13 +1,13 @@
 #ifndef _RFID_H
 #define _RFID_H
 
-
-#include "stm32f4_sys.h"
-#include "stm32f4xx.h" 
-#include "main.h"
-#include "comm_rec.h"
-#include "f4_uart.h"
-#include "my_queue.h"
+#include "app.h"
+//#include "stm32f4_sys.h"
+//#include "stm32f4xx.h" 
+//#include "main.h"
+//#include "comm_rec.h"
+//#include "f4_uart.h"
+//#include "my_queue.h"
 
 
 #pragma pack(1)
@@ -34,15 +34,20 @@ typedef struct
 #pragma pack()
 
 
+
+
+
+
 extern COMM_HEAD rfid1_pack;
-
-
 
 int rfid1_pre_cb(u8 *b,int len);
 int rfid1_pro(u8 * b,int len);
 
 
 void rfid1_read_process(u8 *b,int len);
+
+void send_rfid1_cmd(u8 *buf, int len);
+void send_rfid2_cmd(u8 *buf, int len);
 
 #endif
 

@@ -79,7 +79,7 @@ void ota_run_process(void)
 //							latest_v = atoi(v_r.v_buf);                                 //服务器存储的版本转换为整数
 							
 							set_screen(35);                //展示版本信息界面
-							sprintf(txt_buf,"%s%s","Latest Version:V2.0.1",v_r.v_buf);
+							sprintf(txt_buf,"%s%s","Latest Version:V2.0.1.",v_r.v_buf);
 							SetTextValue(35,6,(unsigned char*)txt_buf);
 							memset(txt_buf,0x00,sizeof(txt_buf));
 							sprintf(txt_buf,"%s%s","Current Version:",cfg_dft.version);
@@ -127,11 +127,14 @@ void ota_run_process(void)
 				wifi_flow.down_timeout = 0;
 				pop_tips(27,(u8*)HMI_SUCCEEDED,(u8*)FILE_IM_SUCCEEDED);
 			}
-			if(wifi_flow.down_timeout++ > 5000)
+			else
 			{
-				wifi_flow.ota_run_step = 66;
-				set_screen(20);
-				pop_tips(30,(u8*)HMI_FAILED,(u8*)"Cure parameter update failed!");   //固化参数更新失败
+				if(wifi_flow.down_timeout++ > 10)
+				{
+					wifi_flow.ota_run_step = 66;
+					set_screen(20);
+					pop_tips(30,(u8*)HMI_FAILED,(u8*)"Cure parameter update failed!");   //固化参数更新失败
+				}
 			}
 		}
 		else if(wifi_flow.ota_run_step == 3)              //检测内存和清除
@@ -835,13 +838,17 @@ u8 download_parameter_file(char* down_path,char* mem_path,u8 d_mode)
 	static s_file_download cure_file = {0};
 	u32 write_len = 0,file_size = 0;
 	UINT w;
-
+//	FILINFO check_fno = {0};
 	memset(&cure_file,0x00,sizeof(cure_file));
+//	result = f_stat(mem_path,&check_fno);                   //检测存在文件，若存在则删除
+//	if(FR_OK == result)
+//		f_unlink(mem_path);
+	
 	if(d_mode == 1)                           //若是以太网传输 优先使用以太网
 	{
 		if( 0 == usr_file_header_request(cfg_dft.ali_domain_name,down_path,&cure_file.file_size,3000))   //请求文件信息，确认文件大小
 		{
-			result = f_open(&dowm_cure_file,mem_path,FA_OPEN_ALWAYS|FA_WRITE|FA_READ);            //打开的方式创建一个本地文件
+			result = f_open(&dowm_cure_file,mem_path,FA_CREATE_ALWAYS|FA_WRITE|FA_READ);            //打开的方式创建一个本地文件
 			if(FR_OK == result)
 			{
 				cure_file.end = -1;                               //第一包从0开始
@@ -860,7 +867,7 @@ u8 download_parameter_file(char* down_path,char* mem_path,u8 d_mode)
 					if( 0 == usr_server_download_request(cfg_dft.ali_domain_name,down_path,\
 						&cure_file.start,&cure_file.end,cure_file.file_data,&file_size,3000) )    //分段下载数据
 					{
-						result = f_write(&dowm_cure_file,cure_file.file_data,DOWNLOAD_DATA_LEN,&w);
+						result = f_write(&dowm_cure_file,cure_file.file_data,write_len,&w);
 						if(FR_OK == result)
 						{
 							cure_file.write_byte += write_len;
@@ -890,7 +897,7 @@ u8 download_parameter_file(char* down_path,char* mem_path,u8 d_mode)
 	{
 		if( 0 == file_header_request(cfg_dft.ali_domain_name,down_path,&cure_file.file_size,3000))   //请求文件信息，确认文件大小
 		{
-			result = f_open(&dowm_cure_file,mem_path,FA_OPEN_ALWAYS|FA_WRITE|FA_READ);            //打开的方式创建一个本地文件
+			result = f_open(&dowm_cure_file,mem_path,FA_CREATE_ALWAYS|FA_WRITE|FA_READ);            //打开的方式创建一个本地文件
 			if(FR_OK == result)
 			{
 				cure_file.end = -1;
@@ -948,6 +955,7 @@ u8 update_cure_parameter_file(void)
 	check_s check_data_w = {0},check_data_r = {0}; 
 	UINT r;
 	u8 read_file_buf[1024] = {0},res = 0;
+	
 	if( 0 == download_parameter_file(CURE_CHECK_FILE_PATH,MEM_CURE_CHECK_FILE_PATH,cfg_dft.network_selet) )	    //先下载固化参数的校验文件
 	{
 		result = f_stat(MEM_CURE_CHECK_FILE_PATH,&file_info);                         //确认下载的本地文件存在                    
@@ -975,13 +983,13 @@ u8 update_cure_parameter_file(void)
 								crc = cal_crc((u8*)&check_data_r,sizeof(check_s) - 4);
 								if( check_data_r.head != 0xaa55 || check_data_r.end != 0xFFFF || check_data_r.self_crc !=  crc )
 								{
-									f_close(&dowm_check_file);                //校验成功 关闭文件
+									f_close(&dowm_check_file);                //校验错误 关闭文件
 									return 1;
 								}
 							}
 							else
 							{
-								f_close(&dowm_check_file);                    //校验成功 关闭文件
+								f_close(&dowm_check_file);                    //校验错误 关闭文件
 								return 1;
 							}
 							vTaskDelay(1);                                        //避免长时间占用cpu
