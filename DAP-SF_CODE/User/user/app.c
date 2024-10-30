@@ -27,7 +27,7 @@ void start_task(void *pvParameters)
 {
 	xTaskCreate( init_task, "init_task", 512, NULL, 9, &init_task_handler );	
 	xTaskCreate( rfid1_task, "rfid1_task", 512, NULL, 7, &rfid1_task_handler);
-	xTaskCreate( rfid2_task, "rfid2_task", 512, NULL, 7, &rfid2_task_handler);
+	xTaskCreate( rfid2_task, "rfid2_task", 512, NULL, 6, &rfid2_task_handler);
 	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
 	xTaskCreate( software_timer_task, "software_timer_task", 256, NULL, 4, &software_timer_handler );
 	xTaskCreate( modbus_pro_task, "modbus_pro_task", 256, NULL, 3, &modbus_pro_task_handler );
@@ -55,28 +55,36 @@ void init_task(void * pvParameters)
 	
 	cmd_ini(); 
 	
+//	vTaskDelay(3000);
+	rfid_init();
+	
 	while(1)
 	{
 		
-		if(!KEY_DET)       //按下
-		{
-			if(PWR_HOLD == 0)
-			{
-				if(pwr_tick++ > 50)
-				{
-					pwr_tick = 0;
-					PWR_HOLD = 1;
-				}
-			}
-			else 
-			{
+//		if(!KEY_DET)       //按下
+//		{
+//			if(pwr_tick++ > 50)
+//			{
+////				rfid_init();
+//			}
+			
+//			if(PWR_HOLD == 0)
+//			{
 //				if(pwr_tick++ > 50)
 //				{
 //					pwr_tick = 0;
-//					PWR_HOLD = 0;
+//					PWR_HOLD = 1;
 //				}
-			}
-		}
+//			}
+//			else 
+//			{
+////				if(pwr_tick++ > 50)
+////				{
+////					pwr_tick = 0;
+////					PWR_HOLD = 0;
+////				}
+//			}
+//		}
 		led_single_show(yellow,RGB_LED_NUM);  
 		vTaskDelay(10);
 	}
@@ -85,12 +93,13 @@ void init_task(void * pvParameters)
 
 
 u8 modbus_rx_data[MODBUS_RTU_MAX_ADU_LENGTH];
+modbus_mapping_t *mb_mapping = NULL;
 void modbus_pro_task(void * pvParameters)
 {
 	int rc;
 	u8 *query;
 	modbus_t *ctx = NULL;
-	modbus_mapping_t *mb_mapping = NULL;
+//	modbus_mapping_t *mb_mapping = NULL;
 	ctx = modbus_new_st_rtu("uart4", 115200, 'N', 8, 1);
 	modbus_set_slave(ctx, 2);
 	
@@ -131,12 +140,19 @@ void modbus_pro_task(void * pvParameters)
 //		mb_mapping->tab_input_registers[1] ++;
 //		mb_mapping->tab_registers[0]++;
 		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
+		
+		
 		mb_mapping->tab_registers[BAND_REG] = 6754;
 		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
 		rc = modbus_reply(ctx,query,rc,mb_mapping);
 		if (rc == -1) {
 			break;
 		}
+//		if(mb_mapping->start_bits[0] == )
+//		{
+//			
+//		}
+		
 	}
 	modbus_mapping_free(mb_mapping);
 	vPortFree(query);
@@ -261,6 +277,11 @@ void rfid1_task(void *pvParameters)
 	
 }
 
+
+
+#define RFID2_MAX_LEN     50
+u8 rfid2_rec_buf[RFID2_MAX_LEN];
+u32 rfid2_rec_p = 0;
 //rfid2
 void rfid2_task(void *pvParameters)
 {
@@ -273,7 +294,8 @@ void rfid2_task(void *pvParameters)
 		{
 			while( get_que_data(&tt,&uart3.que_rx) == 0 )
 			{
-				
+				rfid2_rec_buf[rfid2_rec_p++] = tt;
+				rfid2_rec_p %= RFID2_MAX_LEN;
 			}
 		}
 		else

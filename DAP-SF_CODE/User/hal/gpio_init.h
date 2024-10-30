@@ -24,6 +24,11 @@
 #define KEY_DET               PBin(1)
 
 #define RFID1_EN              PDout(1)
+#define RFID2_EN              PEout(11)
+
+
+#define MOTOR_DIR             PEout(14)
+#define RLY_EN                PEout(15)
 
 #define VK36_OUT0             PEin(8)
 #define VK36_OUT1             PEin(7)

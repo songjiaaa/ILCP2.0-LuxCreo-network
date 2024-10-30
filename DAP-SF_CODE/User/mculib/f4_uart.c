@@ -199,11 +199,31 @@ void USART2_IRQHandler(void)
 
 void USART3_IRQHandler(void)
 {
+	u16 t;
 	BaseType_t xHigherPriorityTaskWoken; 
 	uint32_t ulReturn;
 	ulReturn = taskENTER_CRITICAL_FROM_ISR();	/* 进入临界段，临界段可以嵌套 */
 	
-	uart_irq(&uart3);
+//	uart_irq(&uart3);
+	
+	if(uart3.uart->SR & 0x28)//接收和过载
+	{
+		t=(u8)(uart3.uart->DR);
+		Queue_set_1(t,&(uart3.que_rx));
+	}
+	if(uart3.uart->CR1 & (1<<7) && uart3.uart->SR & 0x80)//发送空中断TXE
+	{
+		u8 tmp;
+		if(Queue_get_1(&tmp,&(uart3.que_tx))==0)
+		{
+			uart3.uart->DR=tmp;
+		}
+		else
+		{
+			uart3.uart->CR1 &= ~(1<<7);//TXE
+			RFID2_EN  = 0;
+		}
+	}
 	
 	if(uart3.uart->CR1 & (1<<4) && uart3.uart->SR & 0x10)  //空闲中断
 	{

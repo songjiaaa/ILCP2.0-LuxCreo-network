@@ -9,7 +9,7 @@
 //#include "f4_uart.h"
 //#include "my_queue.h"
 
-
+//数据包头部字段，不含固定包头
 #pragma pack(1)
 typedef struct
 {
@@ -20,9 +20,7 @@ typedef struct
 }d_h;
 #pragma pack()
 
-
-
-
+//数据包体
 #pragma pack(1)
 typedef struct
 {
@@ -34,7 +32,15 @@ typedef struct
 #pragma pack()
 
 
-
+//高频模块初始化状态
+#pragma pack(1)
+typedef struct
+{
+	u8 rfid1_state;
+	u8 rfid2_state;
+	
+}rf_init;
+#pragma pack()
 
 
 
@@ -45,7 +51,7 @@ int rfid1_pro(u8 * b,int len);
 
 
 void rfid1_read_process(u8 *b,int len);
-
+void rfid_init(void);
 void send_rfid1_cmd(u8 *buf, int len);
 void send_rfid2_cmd(u8 *buf, int len);
 

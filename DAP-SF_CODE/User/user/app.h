@@ -115,6 +115,12 @@ void init_task(void * pvParameters);
 #define  START_UPDATE_COMMAND_ADDR  0x0801          //启动更新标志
 
 
+//线圈寄存器
+#define  IP_CAMERA_POWER_REG   0x0680        //IP相机电源
+#define  LIQUID_IN_SWITCH_REG  0x0681        //注液进料开关
+
+
+
 #define  BAND_REG        (BAND_ADDR - REG_START_ADDR)          //材料品牌名
 #define  RESIN_REG        (RESIN_ADDR - REG_START_ADDR)          //树脂名
 #define  VOLUME_REG     (VOLUME_ADDR - REG_START_ADDR)          //料瓶容量
@@ -142,9 +148,7 @@ void init_task(void * pvParameters);
 #define  RECEIVED_FILE_DATA_REG     (RECEIVED_FILE_DATA_ADDR - REG_START_ADDR)          //接收文件数据
 #define  START_UPDATE_COMMAND_REG   (START_UPDATE_COMMAND_ADDR - REG_START_ADDR)          //启动更新标志
 
-//线圈寄存器
-#define  IP_CAMERA_POWER_REG   0x0680        //IP相机电源
-#define  LIQUID_IN_SWITCH_REG  0x0681        //注液进料开关
+
 
 
 //IO输入检测
