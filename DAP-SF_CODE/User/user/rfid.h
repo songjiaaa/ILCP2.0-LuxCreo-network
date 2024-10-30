@@ -32,6 +32,17 @@ typedef struct
 #pragma pack()
 
 
+
+//u8 rf1_data_buf[256] = {0};
+//u8 read_num = 0;
+//u8 read_flag = 0;
+//u8 read_addr = 0;
+
+//u8 write_num = 0;
+//u8 write_flag = 0;
+//u8 write_addr = 0;
+
+//u32 connect_cnt = 0;
 //高频模块初始化状态
 #pragma pack(1)
 typedef struct
@@ -61,8 +72,8 @@ void send_rfid2_cmd(u8 *buf, int len);
 
 
 
-void rfid1_read_data(u8 addr,int len);
-void rfid1_write_data(u8* buf, u8 addr,int len);
+int rfid1_read_data(u8 addr,u8 len);
+int rfid1_write_data(u8* buf, u8 addr,u8 len);
 
 
 #endif
