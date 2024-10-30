@@ -90,7 +90,6 @@ u8 write_addr = 0;
 u32 connect_cnt = 0;
 
 
-//int test_len = 0;
 //÷∏¡Ó¥¶¿Ì
 int rfid1_read_process(u8 *b,int len)
 {
