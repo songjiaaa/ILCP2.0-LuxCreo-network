@@ -36,10 +36,14 @@ typedef struct
 #pragma pack(1)
 typedef struct
 {
-	u8 rfid1_state;
-	u8 rfid2_state;
+	u8 rfid1_init;
+	u8 rfid1_read;
+	u32 rf1_read_num;
 	
-}rf_init;
+	u8 rfid2_init;
+	u8 rfid2_read;
+	u32 rf2_read_num;
+}rfid_state;
 #pragma pack()
 
 
@@ -50,10 +54,16 @@ int rfid1_pre_cb(u8 *b,int len);
 int rfid1_pro(u8 * b,int len);
 
 
-void rfid1_read_process(u8 *b,int len);
+int rfid1_read_process(u8 *b,int len);
 void rfid_init(void);
 void send_rfid1_cmd(u8 *buf, int len);
 void send_rfid2_cmd(u8 *buf, int len);
+
+
+
+void rfid1_read_data(u8 addr,int len);
+void rfid1_write_data(u8* buf, u8 addr,int len);
+
 
 #endif
 

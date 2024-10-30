@@ -221,7 +221,6 @@ void USART3_IRQHandler(void)
 		else
 		{
 			uart3.uart->CR1 &= ~(1<<7);//TXE
-			RFID2_EN  = 0;
 		}
 	}
 	

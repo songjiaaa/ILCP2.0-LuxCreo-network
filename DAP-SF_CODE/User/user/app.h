@@ -116,8 +116,8 @@ void init_task(void * pvParameters);
 
 
 //线圈寄存器
-#define  IP_CAMERA_POWER_REG   0x0680        //IP相机电源
-#define  LIQUID_IN_SWITCH_REG  0x0681        //注液进料开关
+#define  IP_CAMERA_POWER_ADDR   0x0680        //IP相机电源
+#define  LIQUID_IN_SWITCH_ADDR  0x0681        //注液进料开关
 
 
 
@@ -148,7 +148,8 @@ void init_task(void * pvParameters);
 #define  RECEIVED_FILE_DATA_REG     (RECEIVED_FILE_DATA_ADDR - REG_START_ADDR)          //接收文件数据
 #define  START_UPDATE_COMMAND_REG   (START_UPDATE_COMMAND_ADDR - REG_START_ADDR)          //启动更新标志
 
-
+#define	 IP_CAMERA_POWER_REG		(IP_CAMERA_POWER_ADDR - REG_START_ADDR)
+#define  LIQUID_IN_SWITCH_REG		(LIQUID_IN_SWITCH_ADDR - REG_START_ADDR)
 
 
 //IO输入检测
@@ -174,7 +175,7 @@ typedef struct
 {
     u16 ip_camera_power:      1,   //IP相机电源
         liquid_in_switch:     1,   //注液进料开关
-        reserved:             14;   //保留位
+        reserved:             14;  //保留位
 }out_state_t;
 #pragma pack()
 

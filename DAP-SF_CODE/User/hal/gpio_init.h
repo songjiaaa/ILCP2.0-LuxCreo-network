@@ -30,8 +30,8 @@
 #define MOTOR_DIR             PEout(14)
 #define RLY_EN                PEout(15)
 
-#define VK36_OUT0             PEin(8)
-#define VK36_OUT1             PEin(7)
+#define VK36_OUT0             PEin(8)    //ÒºÎ»¼ì²â
+#define VK36_OUT1             PEin(7)    //Òç³ö¼ì²â
 
 
 void gpio_init(void);

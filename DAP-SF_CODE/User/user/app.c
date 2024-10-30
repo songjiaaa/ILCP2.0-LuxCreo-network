@@ -105,14 +105,14 @@ void modbus_pro_task(void * pvParameters)
 	
 	query = pvPortMalloc(MODBUS_RTU_MAX_ADU_LENGTH);
 	
-	mb_mapping = modbus_mapping_new_start_address(IP_CAMERA_POWER_REG,          //ÏßÈ¦¼Ä´æÆ÷
-												  2,          //ÏßÈ¦¸öÊý
+	mb_mapping = modbus_mapping_new_start_address(0,          //ÏßÈ¦¼Ä´æÆ÷
+												  0,          //ÏßÈ¦¸öÊý
 												  0,          //ÀëÉ¢ÊäÈë¼Ä´æÆ÷
-												  10,         //¼Ä´æÆ÷¸öÊý
-												  REG_START_ADDR,          //ÊäÈë¼Ä´æÆ÷   
+												  0,          //¼Ä´æÆ÷¸öÊý
+												  REG_START_ADDR,          //ÊäÈë¼Ä´æÆ÷    03 ¶Á 06Ð´ 10 ¶àÐ´ 
 												  1000,
-												  0,          //±£³Ö¼Ä´æÆ÷  03 ¶Á 06Ð´ 10 ¶àÐ´ 
-												  10);
+												  0,          
+												  0);
 	
 	rc = modbus_connect(ctx);
 	if (rc == -1) 
@@ -144,6 +144,13 @@ void modbus_pro_task(void * pvParameters)
 		
 		mb_mapping->tab_registers[BAND_REG] = 6754;
 		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
+		
+	
+//		if (modbus_write_bit(ctx, 0x0002, reg_value))
+//		{
+//			mb_mapping->tab_registers[LIQUID_IN_SWITCH_REG];
+//		}
+		
 		rc = modbus_reply(ctx,query,rc,mb_mapping);
 		if (rc == -1) {
 			break;
@@ -166,13 +173,14 @@ void modbus_pro_task(void * pvParameters)
 
 
 
-//TimerHandle_t  timer_1000ms;
-//TimerHandle_t  timer_10ms;
-//static void uv_total_time_callback(TimerHandle_t xTimer)
-//{
-//	static u32 tick = 0;
-//	tick ++;
-//}
+TimerHandle_t  timer_1000ms;
+TimerHandle_t  timer_10ms;
+static void read_rfid_callback(TimerHandle_t xTimer)
+{
+	static u32 tick = 0;
+	tick ++;
+	rfid1_read_data(0,100);
+}
 
 //static void motor_runtime_callback(TimerHandle_t xTimer)
 //{
@@ -181,14 +189,15 @@ void modbus_pro_task(void * pvParameters)
 
 void software_timer_task( void * pvParameters )
 {
-//	timer_1000ms = xTimerCreate("count_timer",1000,pdTRUE,NULL,uv_total_time_callback);
-//	xTimerStart(timer_1000ms, 0);
+	timer_1000ms = xTimerCreate("count_timer",1000,pdTRUE,NULL,read_rfid_callback);
+	xTimerStart(timer_1000ms, 0);
 //	timer_10ms = xTimerCreate("count_timer",10,pdTRUE,NULL,motor_runtime_callback);
 //	xTimerStart(timer_10ms, 0);
     while(1)
     {
 		LED_IND ^= 1;	
-        vTaskDelay(500);
+        vTaskDelay(1000);
+		rfid1_read_data(0,100);
     }
 	//xTimerDelete(timer, portMAX_DELAY);
 }
