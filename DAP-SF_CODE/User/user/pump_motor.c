@@ -11,12 +11,12 @@ void pump_motor_init(void)
 }
 
 
-
 //±Ã´ò¿ª
 void pump_motor_en(void)
 {
 	MOTOR_DIR = 0;
 	TIM1->CCR3 = 1000;
+	m_data_t.io_out_state.liquid_in_switch = ON;
 }
 
 
@@ -26,6 +26,7 @@ void pump_motor_dis(void)
 {
 	MOTOR_DIR = 0;
 	TIM1->CCR3 = 0;
+	m_data_t.io_out_state.liquid_in_switch = OFF;
 }
 
 
@@ -33,21 +34,24 @@ void pump_motor_dis(void)
 //×Ô¶¯×¢Òº×¢Òº»ú
 void liquid_injection(void)
 {
-	if(VK36_OUT1 == 0)
+	if(GL_8F_OUT == 0)
 	{
-		pump_motor_dis();
-	}
-	else
-	{
-		if(VK36_OUT0 == 0)
+		if(VK36_OUT1 == 0)        //Òç³ö¼ì²â
 		{
 			pump_motor_dis();
 		}
 		else
 		{
-			pump_motor_en();
+			if(VK36_OUT0 == 0)   //×¢ÒºÂú¼ì²â
+			{
+				pump_motor_dis();
+			}
+			else
+			{
+				pump_motor_en();
+			}
 		}
-	}
+	}	
 }
 
 

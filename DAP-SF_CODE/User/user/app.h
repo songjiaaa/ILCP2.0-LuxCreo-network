@@ -45,6 +45,8 @@
 
 #include "hx711.h"
 #include "rfid.h"
+#include "pump_motor.h"
+
 
 extern RTC_TimeTypeDef RTC_TimeStruct;
 extern RTC_DateTypeDef RTC_DateStruct;
@@ -80,7 +82,8 @@ void get_sensor_data_task( void * pvParameters );
 extern TaskHandle_t init_task_handler;
 void init_task(void * pvParameters);
 
-
+extern TaskHandle_t run_task_handler;
+void run_task( void * pvParameters );
 
 
 
@@ -165,7 +168,7 @@ typedef struct
         empty_cantilever:     1,   //空悬臂检测
         bucket_rfid_stete:    1,   //料筒RFID状态
         material_rfid_stete:  1,   //料盒RFID状态
-        reserved:             7;  //保留位
+        reserved:             7;   //保留位
 }in_state_t;
 #pragma pack()
 
@@ -186,23 +189,24 @@ typedef struct
 	int resin_weight;    //树脂重量
     u32 write_resin_weight;   //写入树脂重量
 	u32 resin_volume;    //树脂容积
-    u8 resin_band[30];   //树脂品牌名
-	u8 resin_name[30];   //树脂名
+    u16 resin_band[15];   //树脂品牌名
+	u16 resin_name[15];   //树脂名
 
 	u32 leap_max_num;    //离型膜最多使用次数
 	u32 leap_remain_num; //离型膜剩余使用次数
 	u32 writeleap_num;   //写入膜使用次数
-	u8 leap_name[30];    //膜名字
+	u16 leap_name[15];    //膜名字
 
-	u8 sn[30];   //SN
+	u16 sn[15];   //SN
     int weight_zero;   //称重归零
 
 	in_state_t io_input_state;   //IO输入检测
 	out_state_t io_out_state;   //IO输出检测
 	
-
+	u8 ip_camera_power_on;   //1 打开摄像头供电， 0 关闭摄像头供电
+	u8 liquid_in_on;         //1 允许自动注液， 0禁止自动注液
 	u8 heartbeat_frame;   //心跳检测
-	u8 program_version[30];   //版本信息查询
+	u16 program_version[15];   //版本信息查询
 	u8 file_transfer_flags;   //文件传输标志   1发送文件   0 结束文件传输
 	u32 received_file_size;   //接收的文件大小
 	u8 received_file_data[256];   //接收文件数据

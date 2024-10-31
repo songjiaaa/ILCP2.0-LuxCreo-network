@@ -7,8 +7,9 @@
 //#include "version.h"
 #include "app.h"
 
-#define DEVICE_NAME "ILCP 2.0"
-#define VERSION "V2.0" 
+#define DEVICE_NAME "DAP-SF"
+
+#define VERSION "V1.0" 
 
 
 u8 get_month(void);

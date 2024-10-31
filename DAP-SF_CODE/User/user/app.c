@@ -26,6 +26,7 @@ modbus_data_t m_data_t = {0};
 void start_task(void *pvParameters)
 {
 	xTaskCreate( init_task, "init_task", 512, NULL, 9, &init_task_handler );	
+	xTaskCreate( run_task, "run_task", 512, NULL, 8, &run_task_handler );		
 	xTaskCreate( rfid1_task, "rfid1_task", 512, NULL, 7, &rfid1_task_handler);
 	xTaskCreate( rfid2_task, "rfid2_task", 512, NULL, 6, &rfid2_task_handler);
 	xTaskCreate( get_sensor_data_task, "get_sensor_data_task", 256, NULL, 5, &get_sensor_data_handler );
@@ -52,15 +53,12 @@ void init_task(void * pvParameters)
 	hx711_io_init();
 	ws2812_init();
 //	ADC1_Config();                //注意冲突引脚
-	
+	pump_motor_init();
+	rfid_init();
 	cmd_ini(); 
 	
-//	vTaskDelay(3000);
-	rfid_init();
-	
 	while(1)
-	{
-		
+	{	
 //		if(!KEY_DET)       //按下
 //		{
 //			if(pwr_tick++ > 50)
@@ -92,14 +90,14 @@ void init_task(void * pvParameters)
 
 
 
-u8 modbus_rx_data[MODBUS_RTU_MAX_ADU_LENGTH];
-modbus_mapping_t *mb_mapping = NULL;
+//u8 modbus_rx_data[MODBUS_RTU_MAX_ADU_LENGTH];
+//modbus_mapping_t *mb_mapping = NULL;
 void modbus_pro_task(void * pvParameters)
 {
 	int rc;
 	u8 *query;
 	modbus_t *ctx = NULL;
-//	modbus_mapping_t *mb_mapping = NULL;
+	modbus_mapping_t *mb_mapping = NULL;
 	ctx = modbus_new_st_rtu("uart4", 115200, 'N', 8, 1);
 	modbus_set_slave(ctx, 2);
 	
@@ -120,6 +118,11 @@ void modbus_pro_task(void * pvParameters)
 		modbus_free(ctx);
 		vTaskDelete(NULL);
 	}
+//	memcpy(m_data_t.program_version,cfg_dft.version,sizeof(cfg_dft.version));
+	for(int i = 0; i< sizeof(m_data_t.program_version)/2; i++)             //大小端转换
+	{
+		m_data_t.program_version[i] = CHANGE_END16( ((u16*)cfg_dft.version)[i] );
+	}
 	
     while(1)
     {
@@ -131,34 +134,31 @@ void modbus_pro_task(void * pvParameters)
 		
 		if (rc == -1 || errno == EMBBADCRC)    //帧错误或crc错误则不回复
 		{
-//			vTaskDelay(10);
 			continue;
 		}
-//		mb_mapping->tab_bits++;
-//		mb_mapping->tab_input_bits++;
-//		mb_mapping->tab_input_registers[0] ++;
-//		mb_mapping->tab_input_registers[1] ++;
-//		mb_mapping->tab_registers[0]++;
-		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
+//		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
+
+		memcpy((u8*)&mb_mapping->tab_registers[BAND_REG],m_data_t.resin_band,sizeof(m_data_t.resin_band));  //更新品牌名
+		memcpy((u8*)&mb_mapping->tab_registers[RESIN_REG],m_data_t.resin_name,sizeof(m_data_t.resin_name)); //更新树脂名
 		
+		memcpy((u8*)&mb_mapping->tab_registers[LEAP_NAME_REG],m_data_t.leap_name,sizeof(m_data_t.leap_name)); //更新膜名称
 		
-		mb_mapping->tab_registers[BAND_REG] = 6754;
-		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;
+		memcpy((u8*)&mb_mapping->tab_registers[GET_SN_REG],m_data_t.sn,sizeof(m_data_t.sn));     //设备SN
+		memcpy( (u8*)&mb_mapping->tab_registers[PROGRAM_VERSION_REG],m_data_t.program_version,sizeof(m_data_t.program_version));  //版本信息
 		
-	
-//		if (modbus_write_bit(ctx, 0x0002, reg_value))
-//		{
-//			mb_mapping->tab_registers[LIQUID_IN_SWITCH_REG];
-//		}
+		mb_mapping->tab_registers[WEIGHT_REG] = m_data_t.resin_weight;         //树脂重量
+		
+		mb_mapping->tab_registers[IO_INPUT_STATE_REG] = *(u16*)&m_data_t.io_input_state;     //IO输入状态
+		mb_mapping->tab_registers[IO_OUT_STATE_REG]	= *(u16*)&m_data_t.io_out_state;        //IO输出状态
+
 		
 		rc = modbus_reply(ctx,query,rc,mb_mapping);
 		if (rc == -1) {
 			break;
 		}
-//		if(mb_mapping->start_bits[0] == )
-//		{
-//			
-//		}
+		
+		m_data_t.ip_camera_power_on = mb_mapping->tab_registers[IP_CAMERA_POWER_REG];
+		m_data_t.liquid_in_on = mb_mapping->tab_registers[LIQUID_IN_SWITCH_REG];
 		
 	}
 	modbus_mapping_free(mb_mapping);
@@ -186,7 +186,7 @@ static void read_rfid_callback(TimerHandle_t xTimer)
 //{
 //}
 
-
+u8 test_flag = 0;
 void software_timer_task( void * pvParameters )
 {
 	timer_1000ms = xTimerCreate("count_timer",1000,pdTRUE,NULL,read_rfid_callback);
@@ -196,8 +196,12 @@ void software_timer_task( void * pvParameters )
     while(1)
     {
 		LED_IND ^= 1;	
-        vTaskDelay(1000);
-		rfid1_read_data(0,100);
+        vTaskDelay(500);
+		if(test_flag == 1)
+		{
+			test_flag = 0;
+			rfid1_read_data(0,64);
+		}
     }
 	//xTimerDelete(timer, portMAX_DELAY);
 }
@@ -227,13 +231,34 @@ void run_task( void * pvParameters )
     while(1)
     {
 		//查询任务堆栈情况
-	
-
 //		runstack_size = uxTaskGetStackHighWaterMark(run_task_handler);
 //		getrunstack_size = uxTaskGetStackHighWaterMark(get_sensor_data_handler);
 //		softwarestack_size = uxTaskGetStackHighWaterMark(software_timer_handler);
 //		initstack_size = uxTaskGetStackHighWaterMark(init_task_handler);
-	
+		if(m_data_t.ip_camera_power_on == 1)
+			CAM12V_PWR_EN = ON;
+		else
+			CAM12V_PWR_EN = OFF;
+		m_data_t.io_out_state.ip_camera_power = CAM12V_PWR_EN;
+		
+		if(m_data_t.liquid_in_on == 1)
+			liquid_injection();
+		else
+		{
+			pump_motor_dis();
+		}
+		LED_R = ~VK36_OUT1;
+		LED_G = ~VK36_OUT0;
+//		m_data_t.io_input_state.material = 
+//		m_data_t.io_input_state.bucket =
+//		m_data_t.io_input_state.liquid_max = VK36_OUT0;
+//		m_data_t.io_input_state.liquid_overflow = VK36_OUT1;
+//		m_data_t.io_input_state.surplus_material =
+//		m_data_t.io_input_state.surplus_bucket =
+//		m_data_t.io_input_state.empty_cantilever = ~GL_8F_OUT;
+//		m_data_t.io_input_state.bucket_rfid_stete =
+//		m_data_t.io_input_state.material_rfid_stete =
+//		m_data_t.io_input_state.reserved = 0;
         vTaskDelay(5);
     }
 }

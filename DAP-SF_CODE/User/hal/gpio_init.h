@@ -26,6 +26,8 @@
 #define RFID1_EN              PDout(1)
 #define RFID2_EN              PEout(11)
 
+#define GL_8F_OUT     		  PEin(12)   //×¢ÒºÐü±Û
+
 
 #define MOTOR_DIR             PEout(14)
 #define RLY_EN                PEout(15)
