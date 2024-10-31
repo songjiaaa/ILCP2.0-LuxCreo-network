@@ -20,6 +20,8 @@
 #define PWR_HOLD              PBout(0)
 
 #define EXT5V_PWR_EN          PEout(2)
+#define USBCAM_PWR_EN         PEout(9)
+
 
 #define KEY_DET               PBin(1)
 
