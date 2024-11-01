@@ -48,11 +48,11 @@ void gpio_init(void)
 	GPIO_Set(GPIOE,PIN12,GPIO_MODE_IN,GPIO_OTYPE_PP,GPIO_SPEED_50M,GPIO_PUPD_PU);
 
 	RGBS_PWR_EN = ON;	 //灯带
-	HUB_PWR_EN = ON;	
-	USBCAM_PWR_EN = ON;
+	HUB_PWR_EN = ON;	 //USB hub 供电
+	USBCAM_PWR_EN = ON;  //5V相机
 	
-	EXT5V_PWR_EN = ON;	
-	CAM12V_PWR_EN = ON;
+	EXT5V_PWR_EN = ON;	  //5V供电
+	CAM12V_PWR_EN = ON;   //原12v相机，后改为悬臂检测
 
 	RFID1_EN = 0;        //拉低表示接收
 }

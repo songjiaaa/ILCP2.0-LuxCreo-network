@@ -163,12 +163,11 @@ typedef struct
         bucket:               1,   //料筒到位检测
         liquid_max:           1,   //注液满检测
         liquid_overflow:      1,   //注液溢出检测
-        surplus_material:     1,   //料盒剩余检测
-        surplus_bucket:       1,   //料筒剩余检测
+        surplus_material:     1,   //料盒剩余检测 余料大于50g 为1
         empty_cantilever:     1,   //空悬臂检测
         bucket_rfid_stete:    1,   //料筒RFID状态
         material_rfid_stete:  1,   //料盒RFID状态
-        reserved:             7;   //保留位
+        reserved:             8;   //保留位
 }in_state_t;
 #pragma pack()
 

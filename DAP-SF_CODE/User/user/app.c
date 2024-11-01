@@ -40,7 +40,7 @@ void start_task(void *pvParameters)
 //初始化任务
 void init_task(void * pvParameters)
 {
-	u8 pwr_tick = 0;
+//	u8 pwr_tick = 0;
 	RCC->AHB1ENR|=0x7ff;
 	bsp_InitDWT();                //初始化DWT计数器
 	gpio_init();
@@ -235,6 +235,8 @@ void run_task( void * pvParameters )
 //		getrunstack_size = uxTaskGetStackHighWaterMark(get_sensor_data_handler);
 //		softwarestack_size = uxTaskGetStackHighWaterMark(software_timer_handler);
 //		initstack_size = uxTaskGetStackHighWaterMark(init_task_handler);
+		
+		//IO输出
 		if(m_data_t.ip_camera_power_on == 1)
 			CAM12V_PWR_EN = ON;
 		else
@@ -249,17 +251,21 @@ void run_task( void * pvParameters )
 		}
 		LED_R = ~VK36_OUT1;
 		LED_G = ~VK36_OUT0;
-//		m_data_t.io_input_state.material = 
-//		m_data_t.io_input_state.bucket =
-//		m_data_t.io_input_state.liquid_max = VK36_OUT0;
-//		m_data_t.io_input_state.liquid_overflow = VK36_OUT1;
-//		m_data_t.io_input_state.surplus_material =
-//		m_data_t.io_input_state.surplus_bucket =
-//		m_data_t.io_input_state.empty_cantilever = ~GL_8F_OUT;
-//		m_data_t.io_input_state.bucket_rfid_stete =
-//		m_data_t.io_input_state.material_rfid_stete =
-//		m_data_t.io_input_state.reserved = 0;
-        vTaskDelay(5);
+		//IO输入
+		m_data_t.io_input_state.material = m_data_t.io_input_state.material_rfid_stete;
+		m_data_t.io_input_state.bucket = m_data_t.io_input_state.bucket_rfid_stete;
+		m_data_t.io_input_state.liquid_max = VK36_OUT0;
+		m_data_t.io_input_state.liquid_overflow = VK36_OUT1;
+		if(m_data_t.resin_weight > 50)
+			m_data_t.io_input_state.surplus_material = 1;
+		else
+			m_data_t.io_input_state.surplus_material = 0;
+		m_data_t.io_input_state.empty_cantilever = ~GL_8F_OUT;
+		m_data_t.io_input_state.reserved = 0;
+		
+		
+		
+        vTaskDelay(10);
     }
 }
 
