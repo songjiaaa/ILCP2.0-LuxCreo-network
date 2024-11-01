@@ -274,3 +274,6 @@ void systime_initial(u32 frq)//输入为中断频率
 	SysTick->CTRL |= 2;//开中断
 	SysTick->CTRL |= 1;
 }
+
+
+

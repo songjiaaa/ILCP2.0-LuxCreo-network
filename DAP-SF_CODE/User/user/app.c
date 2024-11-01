@@ -22,6 +22,13 @@ TaskHandle_t init_task_handler;
 
 modbus_data_t m_data_t = {0};
 
+void get_unique_id(uint32_t *id) 
+{
+    id[0] = *(uint32_t *)(0x1FFFF7AC); // 读取UID的第1-3个字
+    id[1] = *(uint32_t *)(0x1FFFF7B0);
+    id[2] = *(uint32_t *)(0x1FFFF7B4);
+}
+
 //启动任务
 void start_task(void *pvParameters)
 {
@@ -52,10 +59,15 @@ void init_task(void * pvParameters)
 	
 	hx711_io_init();
 	ws2812_init();
+	
+	get_unique_id((u32*)save_config.sn);
+	
+	cfg_get();                  //读取保存数据
 //	ADC1_Config();                //注意冲突引脚
 	pump_motor_init();
 	rfid_init();
 	cmd_ini(); 
+
 	
 	while(1)
 	{	
@@ -137,7 +149,8 @@ void modbus_pro_task(void * pvParameters)
 			continue;
 		}
 //		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
-
+		
+		
 		memcpy((u8*)&mb_mapping->tab_registers[BAND_REG],m_data_t.resin_band,sizeof(m_data_t.resin_band));  //更新品牌名
 		memcpy((u8*)&mb_mapping->tab_registers[RESIN_REG],m_data_t.resin_name,sizeof(m_data_t.resin_name)); //更新树脂名
 		
@@ -151,7 +164,6 @@ void modbus_pro_task(void * pvParameters)
 		mb_mapping->tab_registers[IO_INPUT_STATE_REG] = *(u16*)&m_data_t.io_input_state;     //IO输入状态
 		mb_mapping->tab_registers[IO_OUT_STATE_REG]	= *(u16*)&m_data_t.io_out_state;        //IO输出状态
 
-		
 		rc = modbus_reply(ctx,query,rc,mb_mapping);
 		if (rc == -1) {
 			break;
@@ -159,6 +171,9 @@ void modbus_pro_task(void * pvParameters)
 		
 		m_data_t.ip_camera_power_on = mb_mapping->tab_registers[IP_CAMERA_POWER_REG];
 		m_data_t.liquid_in_on = mb_mapping->tab_registers[LIQUID_IN_SWITCH_REG];
+		
+		m_data_t.weight_zero = mb_mapping->tab_registers[WEIGHT_ZERO_REG];       //称重归零指令
+
 		
 	}
 	modbus_mapping_free(mb_mapping);
@@ -177,9 +192,9 @@ TimerHandle_t  timer_1000ms;
 TimerHandle_t  timer_10ms;
 static void read_rfid_callback(TimerHandle_t xTimer)
 {
-	static u32 tick = 0;
-	tick ++;
-	rfid1_read_data(0,100);
+//	static u32 tick = 0;
+//	tick ++;
+//	rfid1_read_data(0,100);
 }
 
 //static void motor_runtime_callback(TimerHandle_t xTimer)
@@ -210,11 +225,21 @@ void software_timer_task( void * pvParameters )
 //获取传感器数据以及显示任务
 void get_sensor_data_task( void * pvParameters )
 {
-	
+	u32 tick = 0;
 	while(1)
     {	
-		m_data_t.resin_weight = (int)get_weight();
-		MINMAX(m_data_t.resin_weight,0,0xFFFF);
+		if(tick++ % 10 == 1)
+		{
+			m_data_t.resin_weight = (int)get_weight() + save_config.weight_offset;    //10Hz读取
+			if(m_data_t.weight_zero == 1)   //执行称重归零功能
+			{
+				m_data_t.weight_zero = 0;
+				save_config.weight_offset = 0 - m_data_t.resin_weight;
+				cfg_save();
+			}
+			
+			MINMAX(m_data_t.resin_weight,0,0xFFFF);
+		}
 		
         vTaskDelay(10);
     }
@@ -249,8 +274,8 @@ void run_task( void * pvParameters )
 		{
 			pump_motor_dis();
 		}
-		LED_R = ~VK36_OUT1;
-		LED_G = ~VK36_OUT0;
+		LED_G = ~VK36_OUT1;
+		LED_R = ~VK36_OUT0;
 		//IO输入
 		m_data_t.io_input_state.material = m_data_t.io_input_state.material_rfid_stete;
 		m_data_t.io_input_state.bucket = m_data_t.io_input_state.bucket_rfid_stete;
@@ -319,9 +344,7 @@ void rfid1_task(void *pvParameters)
 
 
 
-#define RFID2_MAX_LEN     50
-u8 rfid2_rec_buf[RFID2_MAX_LEN];
-u32 rfid2_rec_p = 0;
+
 //rfid2
 void rfid2_task(void *pvParameters)
 {
@@ -334,8 +357,7 @@ void rfid2_task(void *pvParameters)
 		{
 			while( get_que_data(&tt,&uart3.que_rx) == 0 )
 			{
-				rfid2_rec_buf[rfid2_rec_p++] = tt;
-				rfid2_rec_p %= RFID2_MAX_LEN;
+				rec_head(tt,&rfid2_pack);
 			}
 		}
 		else

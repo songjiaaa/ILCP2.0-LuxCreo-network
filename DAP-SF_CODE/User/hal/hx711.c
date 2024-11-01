@@ -51,11 +51,11 @@ float get_weight(void)
 {
 	int weight_data = 0;
 	float ad_val = 0,ad_mean = 0;
-	weight_data = hx711_recv();
-	ad_val = weight_data * 3.3f / 16777216.0f;  //24Î»AAD×ª»»Ð¾Æ¬ 
+	weight_data = hx711_recv();    //24Î»AD×ª»»Ð¾Æ¬ 
+	ad_val = weight_data; 
 	//ÂË²¨
 	ad_mean = sliding_mean_filter_calc(&weight,ad_val);
-	return (ad_mean - 1.65f)/V_WEIGHT_CON;
+	return (ad_mean - 8483000)/382.0f;
 }
 
 

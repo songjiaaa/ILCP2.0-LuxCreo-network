@@ -16,6 +16,7 @@ void pump_motor_en(void)
 {
 	MOTOR_DIR = 0;
 	TIM1->CCR3 = 1000;
+	RLY_EN = ON;
 	m_data_t.io_out_state.liquid_in_switch = ON;
 }
 
@@ -26,6 +27,7 @@ void pump_motor_dis(void)
 {
 	MOTOR_DIR = 0;
 	TIM1->CCR3 = 0;
+	RLY_EN = OFF;
 	m_data_t.io_out_state.liquid_in_switch = OFF;
 }
 

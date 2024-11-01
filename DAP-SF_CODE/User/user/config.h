@@ -23,7 +23,9 @@ typedef struct
 #pragma pack(1)
 typedef struct
 {
-	u16   id;
+	u16  id;
+	u8 sn[30];
+	int weight_offset;              //重量偏移值
 }file_save_config;
 #pragma pack()
 

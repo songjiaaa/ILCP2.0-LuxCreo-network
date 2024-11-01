@@ -14,21 +14,30 @@ s_cfg cfg_dft=
 //固定的设置
 file_save_config save_config =
 {
-	.id = 1, 
+	.id = 2,
+	.weight_offset = 0,
 };
 
 
 int cfg_save(void) //将当前配置保存在Flash
 {
-
-	return 0;
+	int ret = 0;
+	ret = flash_eraseAwrite((u32*)&save_config,sizeof(save_config),(void*)CFG_FLASH_ADDR);
+	return ret;
 }
 
 #define CFG  (*(file_save_config*)CFG_FLASH_ADDR)
 #define CHECK_VALID(d,min,max,dft) ((d!=-1 && d>=min && d<=max)?d:dft)
 void cfg_get(void) //读取设置
 {
-//	FILINFO fno = {0};
+	if(CFG.id!=0xffff)
+	{
+		save_config=CFG;
+	}
+	else
+	{
+		cfg_save();    //初次写入
+	}
 }
 
 void cfg_print(void)

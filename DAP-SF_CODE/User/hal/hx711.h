@@ -24,7 +24,7 @@ typedef struct
 #define HX711_SDA   PDin(13)
 #define HX711_SCK   PDout(14)
 
-#define V_WEIGHT_CON   (1.65f/10000)     //1g带来的电压变化
+
 
 void hx711_io_init(void);
 int hx711_recv(void);

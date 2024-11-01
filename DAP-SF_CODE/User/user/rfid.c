@@ -500,17 +500,22 @@ int rfid2_write_data(u8* buf, u8 addr,u8 len)
 }
 
 
+
+// [LuxCreo]--[DMR Ⅲ]--[5]--[1.0]--[1]--[1000]
 //读取料筒数据
 int get_bucket_data(void)
 {
 	if( 0 == rfid1_read_data(READ_TAG_START_ADDR,RFID_MAX_STORE_LEN) )  //读取标签1数据
 	{
 		//提取
+		sscanf((const char*)rf_sta.rf1_data_buf,"[%s]--[%s]--[5]--[1.0]--[1]--[1000]",(char*)m_data_t.resin_band, (char*)m_data_t.resin_name);
 		return 0;
 	}
 	return 1;
 }
 
+
+//[LuxCreo]--[LEAP-C+]--[50000]--[50000]
 //读取料盒数据
 int get_material_data(void)
 {
