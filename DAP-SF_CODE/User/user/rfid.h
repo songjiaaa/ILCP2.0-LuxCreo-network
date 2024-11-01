@@ -32,7 +32,7 @@ typedef struct
 #pragma pack()
 
 
-
+#define READ_TAG_START_ADDR  6
 
 #define RFID_MAX_STORE_LEN   96
 //高频模块初始化状态
@@ -88,6 +88,11 @@ int rfid1_read_data(u8 addr,u8 len);
 int rfid2_read_data(u8 addr,u8 len);
 int rfid1_write_data(u8* buf, u8 addr,u8 len);
 int rfid2_write_data(u8* buf, u8 addr,u8 len);
+
+
+int get_bucket_data(void);
+int get_material_data(void);
+
 
 #endif
 

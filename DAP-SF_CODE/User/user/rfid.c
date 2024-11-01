@@ -500,3 +500,25 @@ int rfid2_write_data(u8* buf, u8 addr,u8 len)
 }
 
 
+//读取料筒数据
+int get_bucket_data(void)
+{
+	if( 0 == rfid1_read_data(READ_TAG_START_ADDR,RFID_MAX_STORE_LEN) )  //读取标签1数据
+	{
+		//提取
+		return 0;
+	}
+	return 1;
+}
+
+//读取料盒数据
+int get_material_data(void)
+{
+	if( 0 == rfid2_read_data(READ_TAG_START_ADDR,RFID_MAX_STORE_LEN) )  //读取标签1数据
+	{
+		//提取
+		return 0;
+	}
+	return 1;
+}
+
