@@ -136,6 +136,7 @@ void modbus_pro_task(void * pvParameters)
 		m_data_t.program_version[i] = CHANGE_END16( ((u16*)cfg_dft.version)[i] );
 	}
 	
+	
     while(1)
     {
 		do
@@ -150,11 +151,31 @@ void modbus_pro_task(void * pvParameters)
 		}
 //		memcpy(modbus_rx_data, query, MODBUS_RTU_MAX_ADU_LENGTH);
 		
-		
+		for(int i = 0; i< sizeof(m_data_t.resin_band)/2; i++)             //大小端转换
+		{
+			u16 resin_band[15];
+			memcpy(resin_band,m_data_t.resin_band,sizeof(m_data_t.resin_band));   
+			m_data_t.resin_band[i] = CHANGE_END16( resin_band[i] );
+		}
 		memcpy((u8*)&mb_mapping->tab_registers[BAND_REG],m_data_t.resin_band,sizeof(m_data_t.resin_band));  //更新品牌名
+		
+		for(int i = 0; i< sizeof(m_data_t.resin_name)/2; i++)             //大小端转换
+		{
+			u16 resin_name[15];
+			memcpy(resin_name,m_data_t.resin_name,sizeof(m_data_t.resin_name));   
+			m_data_t.resin_name[i] = CHANGE_END16( resin_name[i] );
+		}
 		memcpy((u8*)&mb_mapping->tab_registers[RESIN_REG],m_data_t.resin_name,sizeof(m_data_t.resin_name)); //更新树脂名
 		
-		memcpy((u8*)&mb_mapping->tab_registers[LEAP_NAME_REG],m_data_t.leap_name,sizeof(m_data_t.leap_name)); //更新膜名称
+		
+		for(int i = 0; i< sizeof(m_data_t.leap_model)/2; i++)             //大小端转换
+		{
+			u16 leap_model[15];
+			memcpy(leap_model,m_data_t.leap_model,sizeof(m_data_t.leap_model));   
+			m_data_t.leap_model[i] = CHANGE_END16( leap_model[i] );
+		}		
+		memcpy((u8*)&mb_mapping->tab_registers[LEAP_NAME_REG],m_data_t.leap_model,sizeof(m_data_t.leap_model)); //更新膜型号
+		
 		
 		memcpy((u8*)&mb_mapping->tab_registers[GET_SN_REG],m_data_t.sn,sizeof(m_data_t.sn));     //设备SN
 		memcpy( (u8*)&mb_mapping->tab_registers[PROGRAM_VERSION_REG],m_data_t.program_version,sizeof(m_data_t.program_version));  //版本信息
@@ -215,7 +236,7 @@ void software_timer_task( void * pvParameters )
 		if(test_flag == 1)
 		{
 			test_flag = 0;
-			rfid1_read_data(0,64);
+			rfid1_read_data(6,100);
 		}
     }
 	//xTimerDelete(timer, portMAX_DELAY);
@@ -230,15 +251,15 @@ void get_sensor_data_task( void * pvParameters )
     {	
 		if(tick++ % 10 == 1)
 		{
-			m_data_t.resin_weight = (int)get_weight() + save_config.weight_offset;    //10Hz读取
+			m_data_t.resin_remain = (int)get_weight() + save_config.weight_offset;    //10Hz读取
 			if(m_data_t.weight_zero == 1)   //执行称重归零功能
 			{
 				m_data_t.weight_zero = 0;
-				save_config.weight_offset = 0 - m_data_t.resin_weight;
+				save_config.weight_offset = 0 - m_data_t.resin_remain;
 				cfg_save();
 			}
 			
-			MINMAX(m_data_t.resin_weight,0,0xFFFF);
+			MINMAX(m_data_t.resin_remain,0,0xFFFF);
 		}
 		
         vTaskDelay(10);
@@ -263,10 +284,10 @@ void run_task( void * pvParameters )
 		
 		//IO输出
 		if(m_data_t.ip_camera_power_on == 1)
-			CAM12V_PWR_EN = ON;
+			USBCAM_PWR_EN = ON;
 		else
-			CAM12V_PWR_EN = OFF;
-		m_data_t.io_out_state.ip_camera_power = CAM12V_PWR_EN;
+			USBCAM_PWR_EN = OFF;
+		m_data_t.io_out_state.ip_camera_power = USBCAM_PWR_EN;
 		
 		if(m_data_t.liquid_in_on == 1)
 			liquid_injection();
@@ -281,14 +302,12 @@ void run_task( void * pvParameters )
 		m_data_t.io_input_state.bucket = m_data_t.io_input_state.bucket_rfid_stete;
 		m_data_t.io_input_state.liquid_max = VK36_OUT0;
 		m_data_t.io_input_state.liquid_overflow = VK36_OUT1;
-		if(m_data_t.resin_weight > 50)
+		if(m_data_t.resin_weight >= 50)
 			m_data_t.io_input_state.surplus_material = 1;
 		else
 			m_data_t.io_input_state.surplus_material = 0;
 		m_data_t.io_input_state.empty_cantilever = ~GL_8F_OUT;
 		m_data_t.io_input_state.reserved = 0;
-		
-		
 		
         vTaskDelay(10);
     }

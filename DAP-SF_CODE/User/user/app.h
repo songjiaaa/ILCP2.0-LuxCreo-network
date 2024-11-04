@@ -185,17 +185,19 @@ typedef struct
 #pragma pack(1)
 typedef struct
 {
-	int resin_weight;    //树脂重量
-    u32 write_resin_weight;   //写入树脂重量
-	u32 resin_volume;    //树脂容积
     u16 resin_band[15];   //树脂品牌名
 	u16 resin_name[15];   //树脂名
+	u32 resin_volume;     //树脂容积
+	float resin_density;  //树脂密度
+	u32 resin_weight;     //树脂重量
+	int resin_remain;     //树脂余量
 
-	u32 leap_max_num;    //离型膜最多使用次数
-	u32 leap_remain_num; //离型膜剩余使用次数
-	u32 writeleap_num;   //写入膜使用次数
-	u16 leap_name[15];    //膜名字
+	u16 leap_band[15];    //膜品牌名
+	u16 leap_model[15];   //膜型号
+	u32 leap_max_num;     //离型膜最多使用次数
+	u32 leap_remain_num;  //离型膜剩余使用次数
 
+	
 	u16 sn[15];   //SN
     int weight_zero;   //称重归零
 

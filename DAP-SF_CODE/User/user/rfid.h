@@ -34,7 +34,7 @@ typedef struct
 
 #define READ_TAG_START_ADDR  6
 
-#define RFID_MAX_STORE_LEN   96
+#define RFID_MAX_STORE_LEN   128
 //高频模块初始化状态
 #pragma pack(1)
 typedef struct

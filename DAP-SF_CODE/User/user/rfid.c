@@ -80,7 +80,7 @@ int rfid1_pre_cb(u8 *b,int len)   //返回整包长度
 		case 0x77:
 			return 26;
 		case 0x78:
-			return 26;			
+			return 10;			
 	}
 	return 0;
 }
@@ -101,7 +101,7 @@ int rfid2_pre_cb(u8 *b,int len)   //返回整包长度
 		case 0x77:              //读接收
 			return 26;
 		case 0x78:              //写接收
-			return 26;			
+			return 10;			
 	}
 	return 0;
 }
@@ -349,6 +349,11 @@ int rfid1_read_data(u8 addr,u8 len)
 {
 	u8 cmd_read[] = {0x43,0x4D,0x77,0x02,0x03,0x00,0x00,0x00,0x04,0xFF};
 	
+	if(addr <= 6 || addr > 39)
+		return 1;
+	if( (addr*4 + len) >= RFID_MAX_STORE_LEN )  
+		return 1;
+	
 	rf_sta.rf1_read_addr = addr;
 	rf_sta.rf1_read_offset = 0;
 	memset(rf_sta.rf1_data_buf,0x00,sizeof(rf_sta.rf1_data_buf));
@@ -387,6 +392,11 @@ int rfid1_read_data(u8 addr,u8 len)
 int rfid2_read_data(u8 addr,u8 len)
 {
 	u8 cmd_read[] = {0x43,0x4D,0x77,0x02,0x03,0x00,0x00,0x00,0x04,0xFF};
+
+	if(addr <= 6 || addr > 39)
+		return 1;
+	if( (addr*4 + len) >= RFID_MAX_STORE_LEN )  
+		return 1;
 	
 	rf_sta.rf2_read_addr = addr;
 	rf_sta.rf2_read_offset = 0;
@@ -426,7 +436,10 @@ int rfid1_write_data(u8* buf, u8 addr,u8 len)
 	u8 cmd_write[] = {0x43,0x4D,0x78,0x02,0x13,0x00,0x00,0x00, 0x0C, \
 	0x12,0x34,0x50,0x0C,  0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x00,0x00,00,0x00, 0xFF};
 	
-	if( (addr*4 + len) >= RFID_MAX_STORE_LEN )  return 1;
+	if(addr <= 6 || addr > 39)
+		return 1;
+	if( (addr*4 + len) >= RFID_MAX_STORE_LEN )  
+		return 1;
 
 	rf_sta.rf1_write_addr = addr;
 	rf_sta.rf1_write_offset = 0;
@@ -466,7 +479,10 @@ int rfid2_write_data(u8* buf, u8 addr,u8 len)
 	u8 cmd_write[] = {0x43,0x4D,0x78,0x02,0x13,0x00,0x00,0x00, 0x0C, \
 	0x12,0x34,0x50,0x0C,  0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x00,0x00,00,0x00, 0xFF};
 	
-	if( (addr*4 + len) >= RFID_MAX_STORE_LEN )  return 1;
+	if(addr <= 6 || addr > 39)
+		return 1;
+	if( (addr*4 + len) >= RFID_MAX_STORE_LEN )  
+		return 1;
 
 	rf_sta.rf2_write_addr = addr;
 	rf_sta.rf2_write_offset = 0;
@@ -500,30 +516,40 @@ int rfid2_write_data(u8* buf, u8 addr,u8 len)
 }
 
 
-
+//品牌名 -- 树脂名 -- 料瓶容量（L） -- 树脂密度(g/cm3) -- 树脂规格（出厂状态1kg/5kg） --  树脂余量(g)
 // [LuxCreo]--[DMR Ⅲ]--[5]--[1.0]--[1]--[1000]
 //读取料筒数据
 int get_bucket_data(void)
 {
 	if( 0 == rfid1_read_data(READ_TAG_START_ADDR,RFID_MAX_STORE_LEN) )  //读取标签1数据
 	{
-		//提取
-		sscanf((const char*)rf_sta.rf1_data_buf,"[%s]--[%s]--[5]--[1.0]--[1]--[1000]",(char*)m_data_t.resin_band, (char*)m_data_t.resin_name);
-		return 0;
+		
+		if( 6 == sscanf((const char*)rf_sta.rf1_data_buf,"[%[^]]]--[%[^]]]--[%d]--[%f]--[%d]--[%d]",(char*)m_data_t.resin_band,(char*)m_data_t.resin_name,\
+				&m_data_t.resin_volume,&m_data_t.resin_density,&m_data_t.resin_weight,&m_data_t.resin_remain) )
+			return 0;
+		else
+			return 1;
 	}
 	return 1;
 }
 
 
+//品牌名 -- 离型膜型号 --  可使用次数（使用寿命） --  剩余寿命
 //[LuxCreo]--[LEAP-C+]--[50000]--[50000]
 //读取料盒数据
 int get_material_data(void)
 {
 	if( 0 == rfid2_read_data(READ_TAG_START_ADDR,RFID_MAX_STORE_LEN) )  //读取标签1数据
 	{
-		//提取
-		return 0;
+		if( 6 == sscanf((const char*)rf_sta.rf2_data_buf,"[%[^]]]--[%[^]]]--[%d]--[%d]",(char*)m_data_t.leap_band,(char*)m_data_t.leap_model,\
+				&m_data_t.leap_max_num,&m_data_t.leap_remain_num) )
+			return 0;
+		else
+			return 1;
 	}
 	return 1;
 }
+
+
+
 
